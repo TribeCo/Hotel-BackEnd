@@ -30,7 +30,7 @@ class get_csrf_token(APIView):
     """
         Get And Set csrf cookie for FrontEnd(React)
     """
-    permission_classes = (permissions.permissions.AllowAny, )
+    permission_classes = (permissions.AllowAny, )
 
     def get(self, request, format=None):
         return Response({'success': "CSRF cookie set"})

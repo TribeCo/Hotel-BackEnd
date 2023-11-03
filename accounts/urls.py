@@ -1,5 +1,8 @@
 from django.urls import path
+from .api_views import *
+
+name = "accounts"
 
 urlpatterns = [
-    # path('admin/', admin.site.urls),
+    path('csrf/', get_csrf_token.as_view(), name='csrf'),
 ]

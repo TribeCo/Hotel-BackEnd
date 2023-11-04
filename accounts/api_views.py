@@ -18,10 +18,10 @@ VALIDATION_CODE = 'fdgfdhj67867sdfsf2343nh'
 Sms_link = 'http://www.0098sms.com/sendsmslink.aspx?FROM=300057341485&TO=phoneNumber&TEXT=کد+:+code&USERNAME=smsa5429&PASSWORD=66578289&DOMAIN=0098'
 # -------------------------------------------------------------------------------------------------------------------------------
 """
-api's in api_views.py :
+    api's in api_views.py :
 
-1- GetCSRFToken --> get crrf token for login
-
+    1- GetCSRFToken --> get crrf token for login
+    2- login --> login user
 
 """
 # -------------------------------------------------------------------------------------------------------------------------------
@@ -34,4 +34,12 @@ class get_csrf_token(APIView):
 
     def get(self, request, format=None):
         return Response({'success': "CSRF cookie set"})
+# -------------------------------------------------------------------------------------------------------------------------------
+@api_view(['GET'])
+def get_routes(request):
+    routes = [
+        '/api/token',
+        '/api/token/refresh',
+    ]
+    return Response(routes)
 # -------------------------------------------------------------------------------------------------------------------------------

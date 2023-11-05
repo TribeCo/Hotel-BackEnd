@@ -13,3 +13,9 @@ class EnhancedTokenObtainPairSerializer(TokenObtainPairSerializer):
         # ...
         return token
 # -------------------------------------------------------------------------------------------------------------------------------
+class UserSerializersValid(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['nationalCode', 'phoneNumber']
+# -------------------------------------------------------------------------------------------------------------------------------
+

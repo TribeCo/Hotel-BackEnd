@@ -15,13 +15,13 @@ from django.utils.decorators import method_decorator
 import json
 # -------------------------------------------------------------------------------------------------------------------------------
 VALIDATION_CODE = 'fdgfdhj67867sdfsf2343nh'
-Sms_link = 'http://www.0098sms.com/sendsmslink.aspx?FROM=300057341485&TO=phoneNumber&TEXT=کد+:+code&USERNAME=smsa5429&PASSWORD=66578289&DOMAIN=0098'
 # -------------------------------------------------------------------------------------------------------------------------------
 """
     api's in api_views.py :
 
     1- GetCSRFToken --> get crrf token for login
     2- login --> login user
+    3- user_create  --> create one account with phoneNumber & National Code
 
 """
 # -------------------------------------------------------------------------------------------------------------------------------
@@ -42,4 +42,36 @@ def get_routes(request):
         '/api/token/refresh',
     ]
     return Response(routes)
+# -------------------------------------------------------------------------------------------------------------------------------
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def user_create(request):
+    """
+        Create User with Post Api
+
+        Sample json :
+        {
+        "phoneNumber" : "09303016386",
+        "nationalCode" : "0110073754"
+        }
+
+    """
+
+    info = UserSerializersValid(data=request.data)
+    code = randint(1000, 9999)
+
+    if info.is_valid():
+        User(nationalCode=info.validated_data['nationalCode'],
+             phoneNumber=info.validated_data['phoneNumber'],
+             is_active=False,
+             code=code).save()
+        # send Code to User
+        # temp = Sms_link.replace("phoneNumber",info.validated_data['phoneNumber'])
+        # temp = temp.replace("code",str(code))
+        # response = requests.get(temp)
+        return Response({'message': 'User was created.'}, status=status.HTTP_201_CREATED)
+    else:
+        return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
+# -------------------------------------------------------------------------------------------------------------------------------
+
 # -------------------------------------------------------------------------------------------------------------------------------

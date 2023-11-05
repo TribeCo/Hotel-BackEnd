@@ -12,4 +12,5 @@ urlpatterns = [
     path('', get_routes, name='routes'),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('user/create/', user_create, name='user_create'),
 ]

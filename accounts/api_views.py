@@ -93,6 +93,8 @@ def code_validation(request):
     if info.is_valid():
         user = User.objects.get(phoneNumber=info.validated_data['phoneNumber'])
         if (user.code == int(info.validated_data['code'])):
+            user.is_active = True
+            user.save()
             return Response({'message': 'code is right.'}, status=status.HTTP_200_OK)
         return Response({'message': 'wrong code!'}, status=status.HTTP_401_UNAUTHORIZED)
     else:

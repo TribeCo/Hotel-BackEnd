@@ -103,6 +103,9 @@ def code_validation(request):
     else:
         return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------
+from django.http import JsonResponse
+from django.conf import settings
+import jwt
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def user_update(request):
@@ -118,6 +121,19 @@ def user_update(request):
     }
 
     """
+
+    token = request.headers.get('Authorization')
+
+    if not token:
+        return JsonResponse({'error': 'Access denied. No token provided.'}, status=401)
+    
+    try:
+        decoded_token = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+    except jwt.InvalidTokenError:
+        return JsonResponse({'error': 'Invalid token.'}, status=401)
+
+    user_phoneNumber = decoded_token.get('phoneNumber')
+
     
     info = UserSerializersUpdate(data=request.data)
 
@@ -127,6 +143,9 @@ def user_update(request):
             user = User.objects.get(phoneNumber=info.validated_data['phoneNumber'])
         except User.DoesNotExist:
             return Response({'error': 'this user does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+        if user_phoneNumber != info.validated_data['phoneNumber']:
+            return JsonResponse({'error': 'Access denied. User mismatch.'}, status=403)
 
         user.firstName = info.validated_data['firstName']
         user.lastName = info.validated_data['lastName']
@@ -143,3 +162,12 @@ def user_update(request):
     else:
         return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+    
+
+    
+
+    

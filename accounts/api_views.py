@@ -73,5 +73,28 @@ def user_create(request):
     else:
         return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def code_validation(request):
+    """
+        It checks whether the code is the same as the code in the database
 
+        Sample json :
+        {
+        "phoneNumber" : "09303016386",
+        "code" : "3387"
+        }
+
+    """
+
+    info = CodeValidationSerializers(data=request.data)
+    
+
+    if info.is_valid():
+        user = User.objects.get(phoneNumber=info.validated_data['phoneNumber'])
+        if (user.code == int(info.validated_data['code'])):
+            return Response({'message': 'code is right.'}, status=status.HTTP_200_OK)
+        return Response({'message': 'wrong code!'}, status=status.HTTP_401_UNAUTHORIZED)
+    else:
+        return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------

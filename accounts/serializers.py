@@ -18,4 +18,10 @@ class UserSerializersValid(serializers.ModelSerializer):
         model = User
         fields = ['nationalCode', 'phoneNumber']
 # -------------------------------------------------------------------------------------------------------------------------------
-
+class CodeValidationSerializers(serializers.ModelSerializer):
+    phoneNumber = serializers.CharField()
+    code = serializers.CharField()
+    class Meta:
+        model = User
+        fields = ['phoneNumber', 'code']
+# -------------------------------------------------------------------------------------------------------------------------------

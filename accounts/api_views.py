@@ -22,6 +22,8 @@ VALIDATION_CODE = 'fdgfdhj67867sdfsf2343nh'
     1- GetCSRFToken --> get crrf token for login
     2- login --> login user
     3- user_create  --> create one account with phoneNumber & National Code
+    4- code_validation --> It checks whether the code is the same as the code in the database
+    5- user_update --> Update User information 
 
 """
 # -------------------------------------------------------------------------------------------------------------------------------
@@ -93,10 +95,51 @@ def code_validation(request):
     if info.is_valid():
         user = User.objects.get(phoneNumber=info.validated_data['phoneNumber'])
         if (user.code == int(info.validated_data['code'])):
+            
             user.is_active = True
             user.save()
             return Response({'message': 'code is right.'}, status=status.HTTP_200_OK)
         return Response({'message': 'wrong code!'}, status=status.HTTP_401_UNAUTHORIZED)
+    else:
+        return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
+# -------------------------------------------------------------------------------------------------------------------------------
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def user_update(request):
+    """
+    Update User information
+
+    Sample json :
+    {
+        "phoneNumber" : "09303016386",
+        "firstName" : "Taha",
+        "lastName" : "Mousavi",
+        "password" : "1234gg5678"
+    }
+
+    """
+    
+    info = UserSerializersUpdate(data=request.data)
+
+
+    if info.is_valid():
+        try:
+            user = User.objects.get(phoneNumber=info.validated_data['phoneNumber'])
+        except User.DoesNotExist:
+            return Response({'error': 'this user does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+        user.firstName = info.validated_data['firstName']
+        user.lastName = info.validated_data['lastName']
+
+        user.set_password(info.validated_data['password'])
+
+        # Do the rest of the process of adding information here
+
+
+        #...
+        
+        user.save()
+        return Response({'message': 'ok is updated'}, status=status.HTTP_200_OK)
     else:
         return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------

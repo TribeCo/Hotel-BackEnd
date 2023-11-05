@@ -25,3 +25,9 @@ class CodeValidationSerializers(serializers.ModelSerializer):
         model = User
         fields = ['phoneNumber', 'code']
 # -------------------------------------------------------------------------------------------------------------------------------
+class UserSerializersUpdate(serializers.ModelSerializer):
+    phoneNumber = serializers.CharField()
+    class Meta:
+        model = User
+        fields = ['phoneNumber','firstName', 'lastName', 'password']
+# -------------------------------------------------------------------------------------------------------------------------------

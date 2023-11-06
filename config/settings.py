@@ -1,11 +1,33 @@
 from pathlib import Path
 from datetime import timedelta
+from decouple import config
+import os
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = 'django-insecure-zj_2$)wcygk^wi*#w5t^nr5(t13w9xm2$*qd*zv@sclpp(_dm&'
-DEBUG = True
 ALLOWED_HOSTS = []
 AUTH_USER_MODEL = 'accounts.User'
+
+
+deploy = True
+if(deploy):
+    # deploy
+    SECRET_KEY = os.getenv('SECRET_KEY', 'LIARA_URL is not set.')
+    shop_email = os.getenv('EMAIL_HOST', 'LIARA_URL is not set.')
+    password_email = os.getenv('EMAIL_HOST_PASSWORD', 'LIARA_URL is not set.')
+    merchant = os.getenv('MERCHANT', 'LIARA_URL is not set.')
+    DEBUG = os.getenv('DEBUG', 'LIARA_URL is not set.')
+    admin_url = os.getenv('ADMIN', 'LIARA_URL is not set.')
+    ip_find = os.getenv('IPFIND', 'LIARA_URL is not set.')
+else:
+    # local
+    SECRET_KEY = config('SECRET_KEY')
+    shop_email = config('EMAIL_HOST')
+    password_email = config('EMAIL_HOST_PASSWORD')
+    merchant = config('MERCHANT')
+    admin_url = config('ADMIN')
+    ip_find = config('IPFIND')
+    DEBUG = True
 
 
 

@@ -13,20 +13,16 @@ deploy = True
 if(deploy):
     # deploy
     SECRET_KEY = os.getenv('SECRET_KEY', 'LIARA_URL is not set.')
-    shop_email = os.getenv('EMAIL_HOST', 'LIARA_URL is not set.')
+    hotel_email = os.getenv('EMAIL_HOST', 'LIARA_URL is not set.')
     password_email = os.getenv('EMAIL_HOST_PASSWORD', 'LIARA_URL is not set.')
-    merchant = os.getenv('MERCHANT', 'LIARA_URL is not set.')
     DEBUG = os.getenv('DEBUG', 'LIARA_URL is not set.')
     admin_url = os.getenv('ADMIN', 'LIARA_URL is not set.')
-    ip_find = os.getenv('IPFIND', 'LIARA_URL is not set.')
 else:
     # local
     SECRET_KEY = config('SECRET_KEY')
-    shop_email = config('EMAIL_HOST')
+    hotel_email = config('EMAIL_HOST')
     password_email = config('EMAIL_HOST_PASSWORD')
-    merchant = config('MERCHANT')
     admin_url = config('ADMIN')
-    ip_find = config('IPFIND')
     DEBUG = True
 
 
@@ -85,15 +81,24 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if(deploy):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('database_name', 'LIARA_URL is not set.'),
+            'USER': os.getenv('database_username', 'LIARA_URL is not set.'),
+            'PASSWORD': os.getenv('password', 'LIARA_URL is not set.'),
+            'HOST': os.getenv('database_hostname_or_ip', 'LIARA_URL is not set.'),
+            'PORT': os.getenv('database_port', 'LIARA_URL is not set.'),
+        }
     }
-}
-
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

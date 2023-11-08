@@ -21,7 +21,7 @@ VALIDATION_CODE = 'fdgfdhj67867sdfsf2343nh'
 
     1- GetCSRFToken --> get crrf token for login
     2- login --> login user
-    3- user_create  --> create one account with phoneNumber & National Code
+    3- user_create  --> create one account with email & National Code
     4- code_validation --> It checks whether the code is the same as the code in the database
     5- user_update --> Update User information 
 
@@ -53,8 +53,8 @@ def user_create(request):
 
         Sample json :
         {
-        "phoneNumber" : "09303016386",
-        "nationalCode" : "0110073754"
+        "email" : "TahaM8000@gmail.com",
+        "nationalCode" : "0112037754"
         }
 
     """
@@ -64,11 +64,11 @@ def user_create(request):
 
     if info.is_valid():
         User(nationalCode=info.validated_data['nationalCode'],
-             phoneNumber=info.validated_data['phoneNumber'],
+             email=info.validated_data['email'],
              is_active=False,
              code=code).save()
         # send Code to User
-        # temp = Sms_link.replace("phoneNumber",info.validated_data['phoneNumber'])
+        # temp = Sms_link.replace("email",info.validated_data['email'])
         # temp = temp.replace("code",str(code))
         # response = requests.get(temp)
         return Response({'message': 'User was created.'}, status=status.HTTP_201_CREATED)
@@ -83,7 +83,7 @@ def code_validation(request):
 
         Sample json :
         {
-        "phoneNumber" : "09303016386",
+        "email" : "TahaM8000@gmail.com",
         "code" : "3387"
         }
 
@@ -93,7 +93,7 @@ def code_validation(request):
     
 
     if info.is_valid():
-        user = User.objects.get(phoneNumber=info.validated_data['phoneNumber'])
+        user = User.objects.get(email=info.validated_data['email'])
         if (user.code == int(info.validated_data['code'])):
             
             user.is_active = True
@@ -114,10 +114,10 @@ def user_update(request):
 
     Sample json :
     {
-        "phoneNumber" : "09303016386",
+        "email" : "TahaM8000@gmail.com",
         "firstName" : "Taha",
         "lastName" : "Mousavi",
-        "password" : "1234gg5678"
+        "password" : "1234jj5678"
     }
 
     """
@@ -132,7 +132,7 @@ def user_update(request):
     except jwt.InvalidTokenError:
         return JsonResponse({'error': 'Invalid token.'}, status=401)
 
-    user_phoneNumber = decoded_token.get('phoneNumber')
+    user_email = decoded_token.get('email')
 
     
     info = UserSerializersUpdate(data=request.data)
@@ -140,11 +140,11 @@ def user_update(request):
 
     if info.is_valid():
         try:
-            user = User.objects.get(phoneNumber=info.validated_data['phoneNumber'])
+            user = User.objects.get(email=info.validated_data['email'])
         except User.DoesNotExist:
             return Response({'error': 'this user does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
-        if user_phoneNumber != info.validated_data['phoneNumber']:
+        if user_email != info.validated_data['email']:
             return JsonResponse({'error': 'Access denied. User mismatch.'}, status=403)
 
         user.firstName = info.validated_data['firstName']

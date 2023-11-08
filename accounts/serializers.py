@@ -9,25 +9,25 @@ class EnhancedTokenObtainPairSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
 
         # Add custom claims
-        token['phoneNumber'] = user.phoneNumber
+        token['email'] = user.email
         # ...
         return token
 # -------------------------------------------------------------------------------------------------------------------------------
 class UserSerializersValid(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['nationalCode', 'phoneNumber']
+        fields = ['nationalCode', 'email']
 # -------------------------------------------------------------------------------------------------------------------------------
 class CodeValidationSerializers(serializers.ModelSerializer):
-    phoneNumber = serializers.CharField()
+    email = serializers.CharField()
     code = serializers.CharField()
     class Meta:
         model = User
-        fields = ['phoneNumber', 'code']
+        fields = ['email', 'code']
 # -------------------------------------------------------------------------------------------------------------------------------
 class UserSerializersUpdate(serializers.ModelSerializer):
-    phoneNumber = serializers.CharField()
+    email = serializers.CharField()
     class Meta:
         model = User
-        fields = ['phoneNumber','firstName', 'lastName', 'password']
+        fields = ['email','firstName', 'lastName', 'password']
 # -------------------------------------------------------------------------------------------------------------------------------

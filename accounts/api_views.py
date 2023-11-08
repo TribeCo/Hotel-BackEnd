@@ -13,10 +13,7 @@ from rest_framework import permissions
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 import json
-from config.settings import hotel_email,password_email
-from email.message import EmailMessage
-import smtplib
-import random
+from .utils import *
 # -------------------------------------------------------------------------------------------------------------------------------
 VALIDATION_CODE = 'fdgfdhj67867sdfsf2343nh'
 # -------------------------------------------------------------------------------------------------------------------------------
@@ -75,15 +72,7 @@ def user_create(request):
              code=code).save()
         # send Code to User
         
-        msg = EmailMessage()
-        msg['Subject'] = 'کد اعتبار سنجی سایت هتل'
-        msg['From'] = hotel_email
-        msg['To'] = user.email
-        msg.set_content(f"کد شما: {user.code}")
-
-        with smtplib.SMTP_SSL('smtp.gmail.com',465) as server:
-            server.login(hotel_email,password_email)
-            server.send_message(msg)
+        send_mail(info.validated_data['email'],code)
         
         return Response({'message': 'User was created and code send.'}, status=status.HTTP_201_CREATED)
     else:

@@ -13,6 +13,10 @@ from rest_framework import permissions
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 import json
+from config.settings import hotel_email,password_email
+from email.message import EmailMessage
+import smtplib
+import random
 # -------------------------------------------------------------------------------------------------------------------------------
 VALIDATION_CODE = 'fdgfdhj67867sdfsf2343nh'
 # -------------------------------------------------------------------------------------------------------------------------------
@@ -38,12 +42,14 @@ class get_csrf_token(APIView):
         return Response({'success': "CSRF cookie set"})
 # -------------------------------------------------------------------------------------------------------------------------------
 @api_view(['GET'])
-def get_routes(request):
-    routes = [
+def get_endpoint(request):
+    endpoints = [
         '/api/token',
         '/api/token/refresh',
+        'user/create/'
     ]
-    return Response(routes)
+
+    return Response(endpoints)
 # -------------------------------------------------------------------------------------------------------------------------------
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
@@ -63,15 +69,23 @@ def user_create(request):
     code = randint(1000, 9999)
 
     if info.is_valid():
-        User(nationalCode=info.validated_data['nationalCode'],
+        user = User(nationalCode=info.validated_data['nationalCode'],
              email=info.validated_data['email'],
              is_active=False,
              code=code).save()
         # send Code to User
-        # temp = Sms_link.replace("email",info.validated_data['email'])
-        # temp = temp.replace("code",str(code))
-        # response = requests.get(temp)
-        return Response({'message': 'User was created.'}, status=status.HTTP_201_CREATED)
+        
+        msg = EmailMessage()
+        msg['Subject'] = 'کد اعتبار سنجی سایت هتل'
+        msg['From'] = hotel_email
+        msg['To'] = user.email
+        msg.set_content(f"کد شما: {user.code}")
+
+        with smtplib.SMTP_SSL('smtp.gmail.com',465) as server:
+            server.login(hotel_email,password_email)
+            server.send_message(msg)
+        
+        return Response({'message': 'User was created and code send.'}, status=status.HTTP_201_CREATED)
     else:
         return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------
@@ -162,7 +176,10 @@ def user_update(request):
     else:
         return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------
+        
 
+
+# -------------------------------------------------------------------------------------------------------------------------------
 
 
 

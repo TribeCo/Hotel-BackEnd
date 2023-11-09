@@ -5,7 +5,7 @@ import os
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-ALLOWED_HOSTS = []
+
 AUTH_USER_MODEL = 'accounts.User'
 
 
@@ -26,6 +26,36 @@ else:
     DEBUG = True
 
 
+#React
+ALLOWED_HOSTS = ["*"]
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOW_METHODS = [
+'DELETE',
+'GET',
+'OPTIONS',
+'PATCH',
+'POST',
+'PUT',
+]
+
+CORS_ALLOW_HEADERS = [
+'accept',
+'accept-encoding',
+'authorization',
+'content-type',
+'dnt',
+'origin',
+'user-agent',
+'x-csrftoken',
+'x-requested-with',
+]
+
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:3000',  # for localhost (REACT Default)
+    'http://localhost:5173',
+    'http://192.168.10.45:5173',  # for network
+)
 
 # Application definition
 

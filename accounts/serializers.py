@@ -24,9 +24,9 @@ class UserSerializersValid(serializers.ModelSerializer):
         
 
         check = int(value[9])
-        value = [int(i) for i in value[:9]]
+        test = [int(i) for i in value[:9]]
         weights = [10, 9, 8, 7, 6, 5, 4, 3, 2]
-        result = sum(x * y for x, y in zip(value, weights)) % 11
+        result = sum(x * y for x, y in zip(test, weights)) % 11
 
         if result < 2:
             if(check != result):

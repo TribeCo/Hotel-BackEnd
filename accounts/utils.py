@@ -14,5 +14,4 @@ def send_mail(send_to,code):
     with smtplib.SMTP_SSL('smtp.gmail.com',465) as server:
         server.login(hotel_email,password_email)
         server.send_message(msg)
-
 # -------------------------------------------------------------------------------------------------------------------------------

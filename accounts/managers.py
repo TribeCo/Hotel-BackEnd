@@ -4,7 +4,7 @@ from django.contrib.auth.models import BaseUserManager
 class MyUserManager(BaseUserManager):
     def create_user(self,email,nationalCode,password):
         if not email:
-            raise ValueError('users must have Phone')
+            raise ValueError('users must have email')
         if not nationalCode:
             raise ValueError('users must have National Code')
 

@@ -67,6 +67,16 @@ def user_create(request):
     code = randint(1000, 9999)
 
     if info.is_valid():
+
+
+        #Check if the nationalCode is duplicated
+        if User.objects.filter(nationalCode=info.validated_data['nationalCode']).exists():
+            return Response({'message': 'The national code is duplicated.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        #Check if the email is duplicated
+        if User.objects.filter(email=info.validated_data['email']).exists():
+            return Response({'message': 'The emai; code is duplicated'}, status=status.HTTP_400_BAD_REQUEST)
+
         User(nationalCode=info.validated_data['nationalCode'],
         email=info.validated_data['email'],
         is_active=False,

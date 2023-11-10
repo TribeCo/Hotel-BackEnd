@@ -15,8 +15,6 @@ from django.utils.decorators import method_decorator
 import json
 from .utils import *
 # -------------------------------------------------------------------------------------------------------------------------------
-VALIDATION_CODE = 'fdgfdhj67867sdfsf2343nh'
-# -------------------------------------------------------------------------------------------------------------------------------
 """
     api's in api_views.py :
 
@@ -24,7 +22,6 @@ VALIDATION_CODE = 'fdgfdhj67867sdfsf2343nh'
     2- login --> login user
     3- user_create  --> create one account with email & National Code
     4- code_validation --> It checks whether the code is the same as the code in the database
-    5- user_update --> Update User information 
 
 """
 # -------------------------------------------------------------------------------------------------------------------------------
@@ -41,9 +38,10 @@ class get_csrf_token(APIView):
 @api_view(['GET'])
 def get_endpoint(request):
     endpoints = [
-        '/api/token',
-        '/api/token/refresh',
-        'user/create/'
+        '/accounts/token',
+        '/accounts/token/refresh',
+        '/accounts/user/create/',
+        '/accounts/user/validation/'
     ]
 
     return Response(endpoints)
@@ -116,15 +114,5 @@ def code_validation(request):
     else:
         return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------
-
 # -------------------------------------------------------------------------------------------------------------------------------
-
 # -------------------------------------------------------------------------------------------------------------------------------
-
-
-
-    
-
-    
-
-    

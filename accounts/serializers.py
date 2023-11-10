@@ -16,7 +16,7 @@ class EnhancedTokenObtainPairSerializer(TokenObtainPairSerializer):
 class UserSerializersValid(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['nationalCode', 'email']
+        fields = ['nationalCode', 'email','firstName', 'lastName', 'password']
 # -------------------------------------------------------------------------------------------------------------------------------
 class CodeValidationSerializers(serializers.ModelSerializer):
     email = serializers.CharField()
@@ -25,9 +25,5 @@ class CodeValidationSerializers(serializers.ModelSerializer):
         model = User
         fields = ['email', 'code']
 # -------------------------------------------------------------------------------------------------------------------------------
-class UserSerializersUpdate(serializers.ModelSerializer):
-    email = serializers.CharField()
-    class Meta:
-        model = User
-        fields = ['email','firstName', 'lastName', 'password']
+
 # -------------------------------------------------------------------------------------------------------------------------------

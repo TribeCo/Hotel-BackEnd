@@ -57,7 +57,10 @@ def user_create(request):
         Sample json :
         {
         "email" : "TahaM8000@gmail.com",
-        "nationalCode" : "0112037754"
+        "nationalCode" : "0112037754",
+        "firstName" : "Taha",
+        "lastName" : "Mousavi",
+        "password" : "1234jj5678"
         }
 
     """
@@ -66,10 +69,17 @@ def user_create(request):
     code = randint(1000, 9999)
 
     if info.is_valid():
-        user = User(nationalCode=info.validated_data['nationalCode'],
-             email=info.validated_data['email'],
-             is_active=False,
-             code=code).save()
+        User(nationalCode=info.validated_data['nationalCode'],
+        email=info.validated_data['email'],
+        is_active=False,
+        firstName = info.validated_data['firstName'],
+        lastName = info.validated_data['lastName'],
+        code=code).save()
+
+        user = User.objects.get(email=info.validated_data['email'])
+
+        user.set_password(info.validated_data['password'])
+        user.save()
         # send Code to User
         
         send_mail(info.validated_data['email'],code)
@@ -106,67 +116,8 @@ def code_validation(request):
     else:
         return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------
-from django.http import JsonResponse
-from django.conf import settings
-import jwt
-@api_view(['POST'])
-@permission_classes([permissions.AllowAny])
-def user_update(request):
-    """
-    Update User information
 
-    Sample json :
-    {
-        "email" : "TahaM8000@gmail.com",
-        "firstName" : "Taha",
-        "lastName" : "Mousavi",
-        "password" : "1234jj5678"
-    }
-
-    """
-
-    token = request.headers.get('Authorization')
-
-    if not token:
-        return JsonResponse({'error': 'Access denied. No token provided.'}, status=401)
-    
-    try:
-        decoded_token = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
-    except jwt.InvalidTokenError:
-        return JsonResponse({'error': 'Invalid token.'}, status=401)
-
-    user_email = decoded_token.get('email')
-
-    
-    info = UserSerializersUpdate(data=request.data)
-
-
-    if info.is_valid():
-        try:
-            user = User.objects.get(email=info.validated_data['email'])
-        except User.DoesNotExist:
-            return Response({'error': 'this user does not exist'}, status=status.HTTP_404_NOT_FOUND)
-
-        if user_email != info.validated_data['email']:
-            return JsonResponse({'error': 'Access denied. User mismatch.'}, status=403)
-
-        user.firstName = info.validated_data['firstName']
-        user.lastName = info.validated_data['lastName']
-
-        user.set_password(info.validated_data['password'])
-
-        # Do the rest of the process of adding information here
-
-
-        #...
-        
-        user.save()
-        return Response({'message': 'ok is updated'}, status=status.HTTP_200_OK)
-    else:
-        return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------
-        
-
 
 # -------------------------------------------------------------------------------------------------------------------------------
 

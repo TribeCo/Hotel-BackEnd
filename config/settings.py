@@ -29,6 +29,7 @@ else:
 #React
 ALLOWED_HOSTS = ["*"]
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_METHODS = [
 'DELETE',
@@ -51,11 +52,13 @@ CORS_ALLOW_HEADERS = [
 'x-requested-with',
 ]
 
-CORS_ORIGIN_WHITELIST = (
-    'http://localhost:3000',  # for localhost (REACT Default)
-    'http://localhost:5173',
-    'http://192.168.10.45:5173',  # for network
-)
+CORS_ORIGIN_ALLOW_ALL = True
+
+# CORS_ORIGIN_WHITELIST = (
+#     'http://localhost:3000',  # for localhost (REACT Default)
+#     'http://localhost:5173',
+#     'http://192.168.10.45:5173',  # for network
+# )
 
 # Application definition
 

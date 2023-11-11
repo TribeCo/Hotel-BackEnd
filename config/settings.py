@@ -1,12 +1,17 @@
+from corsheaders.defaults import default_headers
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
 import os
 
+# from dotenv import load_dotenv
+# load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 AUTH_USER_MODEL = 'accounts.User'
+
+
+
 
 
 deploy = True
@@ -26,39 +31,10 @@ else:
     DEBUG = True
 
 
-#React
+
 ALLOWED_HOSTS = ["*"]
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL=True
 
-CORS_ALLOW_METHODS = [
-'DELETE',
-'GET',
-'OPTIONS',
-'PATCH',
-'POST',
-'PUT',
-]
-
-CORS_ALLOW_HEADERS = [
-'accept',
-'accept-encoding',
-'authorization',
-'content-type',
-'dnt',
-'origin',
-'user-agent',
-'x-csrftoken',
-'x-requested-with',
-]
-
-CORS_ORIGIN_ALLOW_ALL = True
-
-# CORS_ORIGIN_WHITELIST = (
-#     'http://localhost:3000',  # for localhost (REACT Default)
-#     'http://localhost:5173',
-#     'http://192.168.10.45:5173',  # for network
-# )
 
 # Application definition
 
@@ -79,19 +55,41 @@ INSTALLED_APPS = [
 INSTALLED_APPS += [
     'accounts',
 ]
+
+
+
+
+
+CORS_ALLOWED_ORIGINS = [
+    "https://domain.com",
+    "https://api.domain.com",
+    "http://localhost:3000",
+    "http://127.0.0.1:9000"
+]
+
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:3000',  # for localhost (REACT Default)
+    'http://192.168.10.45:3000',  # for network
+)
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # +++
+    'django.middleware.common.CommonMiddleware',  # +++
     'django.middleware.security.SecurityMiddleware',
-    "corsheaders.middleware.CorsMiddleware",
-
-
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    
+    
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
 ]
+ROOT_URLCONF = 'toos.urls'
+
+
+MEDIA_URL = '/images/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 ROOT_URLCONF = 'config.urls'
 
@@ -141,7 +139,7 @@ DATABASES = {
 }
 
 # Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
+# https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -160,7 +158,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
+# https://docs.djangoproject.com/en/3.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -168,20 +166,28 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
+USE_L10N = True
+
 USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
+# https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = '/static/'
+# STATIC_ROOT =  os.path.join(BASE_DIR, 'static/')
+
+STATICFILES_DIRS = [
+    # os.path.join(BASE_DIR, 'react/build/'),
+    # os.path.join(BASE_DIR, 'media/'),
+    # os.path.join(BASE_DIR, 'static/'),
+]
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
+# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
 
 
 
@@ -239,4 +245,10 @@ SIMPLE_JWT = {
 }
 
 
-CORS_ALLOW_ALL_ORIGINS = True
+
+
+
+
+
+
+

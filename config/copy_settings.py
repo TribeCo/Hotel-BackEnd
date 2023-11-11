@@ -1,8 +1,17 @@
 from corsheaders.defaults import default_headers
 from pathlib import Path
+from datetime import timedelta
+from decouple import config
 import os
 
+# from dotenv import load_dotenv
+# load_dotenv()
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+
+
 
 
 deploy = True
@@ -13,6 +22,14 @@ if(deploy):
     password_email = os.getenv('EMAIL_HOST_PASSWORD', 'LIARA_URL is not set.')
     DEBUG = os.getenv('DEBUG', 'LIARA_URL is not set.')
     admin_url = os.getenv('ADMIN', 'LIARA_URL is not set.')
+else:
+    # local
+    SECRET_KEY = config('SECRET_KEY')
+    hotel_email = config('EMAIL_HOST')
+    password_email = config('EMAIL_HOST_PASSWORD')
+    admin_url = config('ADMIN')
+    DEBUG = True
+
 
 
 ALLOWED_HOSTS = ["*"]
@@ -29,14 +46,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #news:
     'rest_framework',
+    # 'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
+    'drf_yasg'
 ]
-
 
 INSTALLED_APPS += [
-    'accounts.apps.AccountsConfig',
+    'accounts',
 ]
+
+
 
 
 
@@ -71,10 +92,12 @@ MEDIA_URL = '/images/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
+
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'react/build')],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -87,25 +110,15 @@ TEMPLATES = [
     },
 ]
 
-
-
-# LOGIN_REDIRECT_URL = "main"
-LOGIN_REDIRECT_URL = "react"
-LOGOUT_REDIRECT_URL = ""
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
-# SQLITE
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'data/db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -159,7 +172,9 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# Rest FrameWork
+
+
+# REST FRAMEWORK
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         # 'rest_framework.authentication.BasicAuthentication',
@@ -168,3 +183,62 @@ REST_FRAMEWORK = {
     # 'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
 
 }
+# JWT_SECRET_KEY = 'er9238fnwi7fy2d3n3f239r87dcjknwq0e92'
+# JWT_ALGORITHM = 'HS256'
+
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': (
+#         'rest_framework_simplejwt.authentication.JWTAuthentication',
+#     )
+    
+# }
+
+# Django project settings.py
+
+# SIMPLE_JWT = {
+#     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+#     "REFRESH_TOKEN_LIFETIME": timedelta(days=90),
+#     "ROTATE_REFRESH_TOKENS": True,
+#     "BLACKLIST_AFTER_ROTATION": True,
+#     "UPDATE_LAST_LOGIN": False,
+
+#     "ALGORITHM": "HS256",
+#     "VERIFYING_KEY": "",
+#     "AUDIENCE": None,
+#     "ISSUER": None,
+#     "JSON_ENCODER": None,
+#     "JWK_URL": None,
+#     "LEEWAY": 0,
+
+#     "AUTH_HEADER_TYPES": ("Bearer",),
+#     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+#     "USER_ID_FIELD": "id",
+#     "USER_ID_CLAIM": "user_id",
+#     "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
+
+#     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+#     "TOKEN_TYPE_CLAIM": "token_type",
+#     "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
+
+#     "JTI_CLAIM": "jti",
+
+#     "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
+#     "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
+#     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
+
+#     "TOKEN_OBTAIN_SERIALIZER": "accounts.serializers.EnhancedTokenObtainPairSerializer",
+#     "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
+#     "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
+#     "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
+#     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
+#     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
+# }
+
+
+
+
+
+
+
+
+

@@ -1,8 +1,12 @@
 from corsheaders.defaults import default_headers
 from pathlib import Path
 import os
+# from dotenv import load_dotenv
+# load_dotenv()
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 
 deploy = True
@@ -15,7 +19,7 @@ if(deploy):
     admin_url = os.getenv('ADMIN', 'LIARA_URL is not set.')
 
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["*","89.199.35.132","192.168.45.68",]
 AUTH_USER_MODEL = 'accounts.User'
 CORS_ORIGIN_ALLOW_ALL=True
 
@@ -31,6 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'drf_yasg',
 ]
 
 
@@ -45,11 +50,15 @@ CORS_ALLOWED_ORIGINS = [
     "https://api.domain.com",
     "http://localhost:3000",
     "http://127.0.0.1:9000"
+    "http://localhost:5173",
+    "http://127.0.0.1:5173"
 ]
 
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:3000',  # for localhost (REACT Default)
     'http://192.168.10.45:3000',  # for network
+    'http://localhost:5173',  # for localhost (REACT Default)
+    'http://192.168.10.45:5173',
 )
 
 MIDDLEWARE = [
@@ -89,9 +98,6 @@ TEMPLATES = [
 
 
 
-# LOGIN_REDIRECT_URL = "main"
-LOGIN_REDIRECT_URL = "react"
-LOGOUT_REDIRECT_URL = ""
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
@@ -105,6 +111,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'data/db.sqlite3',
     }
 }
+
 
 
 # Password validation
@@ -147,24 +154,62 @@ STATIC_URL = '/static/'
 STATIC_ROOT = '/static/'
 # STATIC_ROOT =  os.path.join(BASE_DIR, 'static/')
 
-STATICFILES_DIRS = [
-    # os.path.join(BASE_DIR, 'react/build/'),
-    # os.path.join(BASE_DIR, 'media/'),
-    # os.path.join(BASE_DIR, 'static/'),
-]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+JWT_SECRET_KEY = 'er9238fnwi7fy2d3n3f239r87dcjknwq0e92'
+JWT_ALGORITHM = 'HS256'
 
-# Rest FrameWork
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        # 'rest_framework.authentication.BasicAuthentication',
-        # 'rest_framework.authentication.SessionAuthentication',
-    ],
-    # 'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
-
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+    
 }
+
+from datetime import timedelta
+# Django project settings.py
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=90),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": False,
+
+    "ALGORITHM": "HS256",
+    "VERIFYING_KEY": "",
+    "AUDIENCE": None,
+    "ISSUER": None,
+    "JSON_ENCODER": None,
+    "JWK_URL": None,
+    "LEEWAY": 0,
+
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
+    "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
+
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "TOKEN_TYPE_CLAIM": "token_type",
+    "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
+
+    "JTI_CLAIM": "jti",
+
+    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
+    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
+    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
+
+    "TOKEN_OBTAIN_SERIALIZER": "accounts.serializers.EnhancedTokenObtainPairSerializer",
+    "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
+    "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
+    "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
+    "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
+    "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
+}
+

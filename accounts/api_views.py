@@ -42,10 +42,9 @@ def get_endpoint(request):
 
     return Response(endpoints)
 # -------------------------------------------------------------------------------------------------------------------------------
-@api_view(['POST'])
-@permission_classes([permissions.AllowAny])
-def user_create(request):
-    """
+class UserCreateView(APIView):
+    def post(self, request):
+        """
         Create User with Post Api
 
         Sample json :
@@ -57,40 +56,37 @@ def user_create(request):
         "password" : "1234jj5678"
         }
 
-    """
+        """
 
-    info = UserSerializersValid(data=request.data)
-    code = randint(1000, 9999)
+        info = UserSerializersValid(data=request.data)
+        code = randint(1000, 9999)
 
-    if info.is_valid():
+        if info.is_valid():
+            # Check if the nationalCode is duplicated
+            if User.objects.filter(nationalCode=info.validated_data['nationalCode']).exists():
+                return Response({'message': 'The national code is duplicated.'}, status=status.HTTP_400_BAD_REQUEST)
 
+            # Check if the email is duplicated
+            if User.objects.filter(email=info.validated_data['email']).exists():
+                return Response({'message': 'The email is duplicated.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        #Check if the nationalCode is duplicated
-        if User.objects.filter(nationalCode=info.validated_data['nationalCode']).exists():
-            return Response({'message': 'The national code is duplicated.'}, status=status.HTTP_400_BAD_REQUEST)
+            User(nationalCode=info.validated_data['nationalCode'],
+                 email=info.validated_data['email'],
+                 is_active=False,
+                 firstName=info.validated_data['firstName'],
+                 lastName=info.validated_data['lastName'],
+                 code=code).save()
 
-        #Check if the email is duplicated
-        if User.objects.filter(email=info.validated_data['email']).exists():
-            return Response({'message': 'The emai; code is duplicated'}, status=status.HTTP_400_BAD_REQUEST)
+            user = User.objects.get(email=info.validated_data['email'])
+            user.set_password(info.validated_data['password'])
+            user.save()
 
-        User(nationalCode=info.validated_data['nationalCode'],
-        email=info.validated_data['email'],
-        is_active=False,
-        firstName = info.validated_data['firstName'],
-        lastName = info.validated_data['lastName'],
-        code=code).save()
+            # send Code to User
+            send_mail(info.validated_data['email'], code)
 
-        user = User.objects.get(email=info.validated_data['email'])
-
-        user.set_password(info.validated_data['password'])
-        user.save()
-        # send Code to User
-        
-        send_mail(info.validated_data['email'],code)
-        
-        return Response({'message': 'User was created and code send.'}, status=status.HTTP_201_CREATED)
-    else:
-        return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'User was created and code sent.'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])

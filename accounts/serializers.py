@@ -13,10 +13,10 @@ class EnhancedTokenObtainPairSerializer(TokenObtainPairSerializer):
         # ...
         return token
 # -------------------------------------------------------------------------------------------------------------------------------
-class UserSerializersValid(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['nationalCode', 'email','firstName', 'lastName', 'password']
+        fields = ['id', 'email', 'nationalCode', 'firstName', 'lastName', 'password']
 
     def validate_nationalCode(self, value):
         if len(value) != 10:

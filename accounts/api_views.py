@@ -10,6 +10,8 @@ from rest_framework import permissions
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 from .utils import *
+from rest_framework.generics import DestroyAPIView,UpdateAPIView
+from django.contrib.auth.hashers import make_password
 # -------------------------------------------------------------------------------------------------------------------------------
 """
     api's in api_views.py :
@@ -58,7 +60,7 @@ class UserCreateView(APIView):
 
         """
 
-        info = UserSerializersValid(data=request.data)
+        info = UserSerializer(data=request.data)
         code = randint(1000, 9999)
 
         if info.is_valid():
@@ -116,5 +118,18 @@ def code_validation(request):
     else:
         return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------
+class UserDeleteView(DestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    lookup_field = 'pk'
 # -------------------------------------------------------------------------------------------------------------------------------
+class UserUpdateView(UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    lookup_field = 'pk'
+
+    def perform_update(self, serializer):
+        if 'password' in serializer.validated_data:
+            serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
+        serializer.save()
 # -------------------------------------------------------------------------------------------------------------------------------

@@ -8,6 +8,13 @@ class User(AbstractBaseUser):
         username --> email
 
     """
+    role_choice = (
+        ('u','کاربر عادی'),
+        ('m','مدیر هتل'),
+        ('d','معاون هتل'),
+        ('a','پذیرش هتل'),
+        ('r','مدیر رستوران'),
+    ) 
     # phoneNumber = models.CharField(unique=True, max_length=11)
     email = models.EmailField(unique=True)
     nationalCode = models.CharField(unique=True, max_length=10)
@@ -18,6 +25,8 @@ class User(AbstractBaseUser):
 
     code = models.IntegerField(blank=True,null=True)
 
+    role = models.CharField(max_length=1,choices=role_choice,default='u')
+    employee_id = models.IntegerField(unique=True,null=True,blank=True)
 
     REQUIRED_FIELDS = ['nationalCode']
     USERNAME_FIELD = 'email'

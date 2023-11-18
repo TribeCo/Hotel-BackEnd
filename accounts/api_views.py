@@ -133,3 +133,14 @@ class UserUpdateView(UpdateAPIView):
             serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
         serializer.save()
 # -------------------------------------------------------------------------------------------------------------------------------
+class UserDetailView(APIView):
+    # permission_classes = [IsHigherRole]
+
+    def get(self, request, pk):
+        try:
+            user = User.objects.get(id=pk)
+            serializer = UserDetailSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'detail': 'user not found.'}, status=status.HTTP_404_NOT_FOUND)
+# -------------------------------------------------------------------------------------------------------------------------------

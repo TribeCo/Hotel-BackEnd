@@ -44,4 +44,8 @@ class CodeValidationSerializers(serializers.ModelSerializer):
         model = User
         fields = ['email', 'code']
 # -------------------------------------------------------------------------------------------------------------------------------
+class UserDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'nationalCode', 'firstName', 'lastName', 'role']
 # -------------------------------------------------------------------------------------------------------------------------------

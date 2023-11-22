@@ -23,6 +23,8 @@ class User(AbstractBaseUser):
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
 
+    can_change_password = models.BooleanField(default=False)
+
     code = models.IntegerField(blank=True,null=True)
 
     role = models.CharField(max_length=1,choices=role_choice,default='u')

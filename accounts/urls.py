@@ -16,5 +16,6 @@ urlpatterns = [
     path('users/validation/', code_validation, name='code_validation'),
     path('users/delete/<int:pk>/', UserDeleteView.as_view(), name='user-delete'),
     path('users/update/<int:pk>/', UserUpdateView.as_view(), name='user-update'),
-    path('users/detail/<int:pk>/', UserDetailView.as_view(), name='user-detail')
+    path('users/detail/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
+    path('test/',TestView.as_view(),name='test'),
 ]

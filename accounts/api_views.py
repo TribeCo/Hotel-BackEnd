@@ -12,6 +12,7 @@ from django.utils.decorators import method_decorator
 from .utils import *
 from rest_framework.generics import DestroyAPIView,UpdateAPIView
 from django.contrib.auth.hashers import make_password
+from rest_framework.permissions import IsAuthenticated
 # -------------------------------------------------------------------------------------------------------------------------------
 """
     api's in api_views.py :
@@ -133,8 +134,9 @@ class UserUpdateView(UpdateAPIView):
             serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
         serializer.save()
 # -------------------------------------------------------------------------------------------------------------------------------
+from accounts.permissions import *
 class UserDetailView(APIView):
-    # permission_classes = [IsHigherRole]
+    permission_classes = [IsAuthenticated,IsHotelManager]
 
     def get(self, request, pk):
         try:
@@ -143,4 +145,11 @@ class UserDetailView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({'detail': 'user not found.'}, status=status.HTTP_404_NOT_FOUND)
+# -------------------------------------------------------------------------------------------------------------------------------
+class TestView(APIView):
+    permission_classes = [IsManager]
+
+    def get(self, request):
+        return Response({'message':'you can see'}, status=status.HTTP_200_OK)
+        
 # -------------------------------------------------------------------------------------------------------------------------------

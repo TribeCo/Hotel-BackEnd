@@ -92,71 +92,69 @@ class UserCreateView(APIView):
         else:
             return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------
-@api_view(['POST'])
-@permission_classes([permissions.AllowAny])
-def Password_change_request(request):
-    """
-        Password change request
+class PasswordChangeRequest(APIView):
+    def post(self, request):
+        """
+            Password change request
 
-        Sample json :
-        {
-        "email" : "TahaM8000@gmail.com",
-        }
+            Sample json :
+            {
+            "email" : "TahaM8000@gmail.com",
+            }
 
-    """
+        """
 
-    info = PasswordChangeRequestSerializer(data=request.data)
-    
-
-    if info.is_valid():
-        user = User.objects.get(email=info.validated_data['email'])
-
-        user.can_change_password = True
-        code = randint(1000, 9999)
-        user.code = code
-        user.save()
-
-        # send Code to User
-        send_mail(info.validated_data['email'], code)
+        info = PasswordChangeRequestSerializer(data=request.data)
         
-        return Response({'message': 'code sent.'}, status=status.HTTP_201_CREATED)
-    else:
-        return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        if info.is_valid():
+            user = User.objects.get(email=info.validated_data['email'])
+
+            user.can_change_password = True
+            code = randint(1000, 9999)
+            user.code = code
+            user.save()
+
+            # send Code to User
+            send_mail(info.validated_data['email'], code)
+            
+            return Response({'message': 'code sent.'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------
-@api_view(['POST'])
-@permission_classes([permissions.AllowAny])
-def change_password(request):
-    """
-        It change user password if can_change_password is active.
+class ChangePassword(APIView):
+    def post(self, request):
+        """
+            It change user password if can_change_password is active.
 
-        Sample json :
-        {
-        "email" : "TahaM8000@gmail.com",
-        "password" : "338dsfs3fsaengh7",
-        "code" : 7676
-        }
+            Sample json :
+            {
+            "email" : "TahaM8000@gmail.com",
+            "password" : "338dsfs3fsaengh7",
+            "code" : 7676
+            }
 
-    """
+        """
 
-    info = PasswordChangeSerializer(data=request.data)
-    
+        info = PasswordChangeSerializer(data=request.data)
+        
 
-    if info.is_valid():
-        user = User.objects.get(email=info.validated_data['email'])
-        if (user.can_change_password):
-            if(user.code == int(info.validated_data['code'])):
-                print(info.validated_data.get('password'))
-                user.set_password(info.validated_data.get('password'))
-                user.can_change_password = False
-                user.code = randint(1000, 9999)
-                user.save()
+        if info.is_valid():
+            user = User.objects.get(email=info.validated_data['email'])
+            if (user.can_change_password):
+                if(user.code == int(info.validated_data['code'])):
+                    print(info.validated_data.get('password'))
+                    user.set_password(info.validated_data.get('password'))
+                    user.can_change_password = False
+                    user.code = randint(1000, 9999)
+                    user.save()
 
-                return Response({'message': 'password changed.'}, status=status.HTTP_200_OK)
-            else:
-                return Response({'message': 'wrong code!'}, status=status.HTTP_401_UNAUTHORIZED)
-        return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
-    else:
-        return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'message': 'password changed.'}, status=status.HTTP_200_OK)
+                else:
+                    return Response({'message': 'wrong code!'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
@@ -193,6 +191,7 @@ class UserDeleteView(DestroyAPIView):
     lookup_field = 'pk'
 # -------------------------------------------------------------------------------------------------------------------------------
 class UserUpdateView(UpdateAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup_field = 'pk'

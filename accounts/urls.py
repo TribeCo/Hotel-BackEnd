@@ -16,8 +16,8 @@ urlpatterns = [
     path('users/validation/', code_validation, name='code_validation'),
     path('users/delete/<int:pk>/', UserDeleteView.as_view(), name='user-delete'),
     path('users/update/<int:pk>/', UserUpdateView.as_view(), name='user-update'),
-    path('users/update/password/', Password_change_request, name='user-chagne-password-request'),
-    path('users/change/password/', change_password, name='user-chagne-password'),
+    path('users/update/password/', PasswordChangeRequest.as_view(), name='user-chagne-password-request'),
+    path('users/change/password/', ChangePassword.as_view(), name='user-chagne-password'),
     path('users/detail/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
     path('test/',TestView.as_view(),name='test'),
 ]

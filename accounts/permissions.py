@@ -45,7 +45,7 @@ class IsManager(BasePermission):
         if not request.user.is_authenticated:
             return False
 
-        if request.user.role == 'm':
+        if request.user.role in ['m','d','a','r']:
             return True
 
         return False

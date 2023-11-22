@@ -13,6 +13,7 @@ from .utils import *
 from rest_framework.generics import DestroyAPIView,UpdateAPIView
 from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import IsAuthenticated
+from accounts.permissions import *
 # -------------------------------------------------------------------------------------------------------------------------------
 """
     api's in api_views.py :
@@ -120,6 +121,7 @@ def code_validation(request):
         return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------
 class UserDeleteView(DestroyAPIView):
+    permission_classes = [IsManager]
     queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup_field = 'pk'
@@ -134,7 +136,6 @@ class UserUpdateView(UpdateAPIView):
             serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
         serializer.save()
 # -------------------------------------------------------------------------------------------------------------------------------
-from accounts.permissions import *
 class UserDetailView(APIView):
     permission_classes = [IsAuthenticated,IsHotelManager]
 

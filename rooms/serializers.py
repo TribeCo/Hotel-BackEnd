@@ -3,6 +3,6 @@ from .models import *
 # -------------------------------------------------------------------------------------------------------------------------------
 class RoomSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Room
-        fields = ('id', 'type', 'bed_count', 'features', 'price_one_night', 'has_Resev', 'code')
+        model = RoomType
+        fields = ('id', 'type', 'bed_count', 'features', 'price_one_night', 'code')
 # -------------------------------------------------------------------------------------------------------------------------------

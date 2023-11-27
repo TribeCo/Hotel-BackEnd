@@ -19,5 +19,6 @@ urlpatterns = [
     path('users/update/password/', PasswordChangeRequest.as_view(), name='user-chagne-password-request'),
     path('users/change/password/', ChangePassword.as_view(), name='user-chagne-password'),
     path('users/detail/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
+    path('dashboard/', DashboardView.as_view(), name='dashboard'),
     path('test/',TestView.as_view(),name='test'),
 ]

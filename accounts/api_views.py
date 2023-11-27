@@ -218,3 +218,28 @@ class TestView(APIView):
     def get(self, request):
         return Response({'message':'you can see'}, status=status.HTTP_200_OK)
 # -------------------------------------------------------------------------------------------------------------------------------
+class DashboardView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        """
+
+            Sample json :
+            {
+            "email" : "TahaM8000@gmail.com"
+            }
+
+        """
+
+        info = PasswordChangeRequestSerializer(data=request.data)
+        
+
+        if info.is_valid():
+            try:
+                user = User.objects.get(email=info.validated_data['email'])
+                serializer = UserDetailSerializer(user)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except User.DoesNotExist:
+                return Response({'detail': 'user not found.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
+# -------------------------------------------------------------------------------------------------------------------------------

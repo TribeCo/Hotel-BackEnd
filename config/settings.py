@@ -1,6 +1,7 @@
 from corsheaders.defaults import default_headers
 from pathlib import Path
 import os
+from decouple import config
 # from dotenv import load_dotenv
 # load_dotenv()
 
@@ -9,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 
-deploy = True
+deploy = False
 if(deploy):
     # deploy
     SECRET_KEY = os.getenv('SECRET_KEY', 'LIARA_URL is not set.')
@@ -17,6 +18,13 @@ if(deploy):
     password_email = os.getenv('EMAIL_HOST_PASSWORD', 'LIARA_URL is not set.')
     DEBUG = os.getenv('DEBUG', 'LIARA_URL is not set.')
     admin_url = os.getenv('ADMIN', 'LIARA_URL is not set.')
+else:
+    # local
+    SECRET_KEY = config('SECRET_KEY')
+    hotel_email = config('EMAIL_HOST')
+    password_email = config('EMAIL_HOST_PASSWORD')
+    admin_url = config('ADMIN')
+    DEBUG = True
 
 
 ALLOWED_HOSTS = ["*","89.199.35.132","192.168.45.68",]
@@ -41,6 +49,7 @@ INSTALLED_APPS = [
 
 INSTALLED_APPS += [
     'accounts.apps.AccountsConfig',
+    'rooms.apps.RoomsConfig',
 ]
 
 
@@ -49,9 +58,9 @@ CORS_ALLOWED_ORIGINS = [
     "https://domain.com",
     "https://api.domain.com",
     "http://localhost:3000",
-    "http://127.0.0.1:9000"
+    "http://127.0.0.1:9000",
     "http://localhost:5173",
-    "http://127.0.0.1:5173"
+    "http://127.0.0.1:5173",
 ]
 
 CORS_ORIGIN_WHITELIST = (
@@ -167,11 +176,15 @@ JWT_ALGORITHM = 'HS256'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        # 'accounts.permissions.CustomPermission',
+    ),
     
 }
 
 from datetime import timedelta
+
 # Django project settings.py
 
 SIMPLE_JWT = {
@@ -212,4 +225,3 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
-

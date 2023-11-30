@@ -49,6 +49,7 @@ INSTALLED_APPS = [
 
 INSTALLED_APPS += [
     'accounts.apps.AccountsConfig',
+    'rooms.apps.RoomsConfig',
 ]
 
 

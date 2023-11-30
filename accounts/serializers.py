@@ -13,10 +13,10 @@ class EnhancedTokenObtainPairSerializer(TokenObtainPairSerializer):
         # ...
         return token
 # -------------------------------------------------------------------------------------------------------------------------------
-class UserSerializersValid(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['nationalCode', 'email','firstName', 'lastName', 'password']
+        fields = ['id', 'email', 'nationalCode', 'firstName', 'lastName', 'password']
 
     def validate_nationalCode(self, value):
         if len(value) != 10:
@@ -44,4 +44,24 @@ class CodeValidationSerializers(serializers.ModelSerializer):
         model = User
         fields = ['email', 'code']
 # -------------------------------------------------------------------------------------------------------------------------------
+class UserDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'nationalCode', 'firstName', 'lastName', 'role']
 # -------------------------------------------------------------------------------------------------------------------------------
+class PasswordChangeRequestSerializer(serializers.ModelSerializer):
+    email = serializers.CharField()
+    class Meta:
+        model = User
+        fields = [ 'email']
+# -------------------------------------------------------------------------------------------------------------------------------
+class PasswordChangeSerializer(serializers.ModelSerializer):
+    email = serializers.CharField()
+    code = serializers.CharField()
+    password = serializers.CharField()
+    class Meta:
+        model = User
+        fields = [ 'email', 'code','password']
+# -------------------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------------------------------------
+

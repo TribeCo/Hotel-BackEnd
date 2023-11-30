@@ -10,6 +10,10 @@ from rest_framework import permissions
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 from .utils import *
+from rest_framework.generics import DestroyAPIView,UpdateAPIView
+from django.contrib.auth.hashers import make_password
+from rest_framework.permissions import IsAuthenticated
+from accounts.permissions import *
 # -------------------------------------------------------------------------------------------------------------------------------
 """
     api's in api_views.py :
@@ -42,10 +46,9 @@ def get_endpoint(request):
 
     return Response(endpoints)
 # -------------------------------------------------------------------------------------------------------------------------------
-@api_view(['POST'])
-@permission_classes([permissions.AllowAny])
-def user_create(request):
-    """
+class UserCreateView(APIView):
+    def post(self, request):
+        """
         Create User with Post Api
 
         Sample json :
@@ -57,40 +60,101 @@ def user_create(request):
         "password" : "1234jj5678"
         }
 
-    """
+        """
 
-    info = UserSerializersValid(data=request.data)
-    code = randint(1000, 9999)
+        info = UserSerializer(data=request.data)
+        code = randint(1000, 9999)
 
-    if info.is_valid():
+        if info.is_valid():
+            # Check if the nationalCode is duplicated
+            if User.objects.filter(nationalCode=info.validated_data['nationalCode']).exists():
+                return Response({'message': 'The national code is duplicated.'}, status=status.HTTP_400_BAD_REQUEST)
 
+            # Check if the email is duplicated
+            if User.objects.filter(email=info.validated_data['email']).exists():
+                return Response({'message': 'The email is duplicated.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        #Check if the nationalCode is duplicated
-        if User.objects.filter(nationalCode=info.validated_data['nationalCode']).exists():
-            return Response({'message': 'The national code is duplicated.'}, status=status.HTTP_400_BAD_REQUEST)
+            User(nationalCode=info.validated_data['nationalCode'],
+                 email=info.validated_data['email'],
+                 is_active=False,
+                 firstName=info.validated_data['firstName'],
+                 lastName=info.validated_data['lastName'],
+                 code=code).save()
 
-        #Check if the email is duplicated
-        if User.objects.filter(email=info.validated_data['email']).exists():
-            return Response({'message': 'The emai; code is duplicated'}, status=status.HTTP_400_BAD_REQUEST)
+            user = User.objects.get(email=info.validated_data['email'])
+            user.set_password(info.validated_data['password'])
+            user.save()
 
-        User(nationalCode=info.validated_data['nationalCode'],
-        email=info.validated_data['email'],
-        is_active=False,
-        firstName = info.validated_data['firstName'],
-        lastName = info.validated_data['lastName'],
-        code=code).save()
+            # send Code to User
+            send_mail(info.validated_data['email'], code)
 
-        user = User.objects.get(email=info.validated_data['email'])
+            return Response({'message': 'User was created and code sent.'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
+# -------------------------------------------------------------------------------------------------------------------------------
+class PasswordChangeRequest(APIView):
+    def post(self, request):
+        """
+            Password change request
 
-        user.set_password(info.validated_data['password'])
-        user.save()
-        # send Code to User
+            Sample json :
+            {
+            "email" : "TahaM8000@gmail.com",
+            }
+
+        """
+
+        info = PasswordChangeRequestSerializer(data=request.data)
         
-        send_mail(info.validated_data['email'],code)
+
+        if info.is_valid():
+            user = User.objects.get(email=info.validated_data['email'])
+
+            user.can_change_password = True
+            code = randint(1000, 9999)
+            user.code = code
+            user.save()
+
+            # send Code to User
+            send_mail(info.validated_data['email'], code)
+            
+            return Response({'message': 'code sent.'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
+# -------------------------------------------------------------------------------------------------------------------------------
+class ChangePassword(APIView):
+    def post(self, request):
+        """
+            It change user password if can_change_password is active.
+
+            Sample json :
+            {
+            "email" : "TahaM8000@gmail.com",
+            "password" : "338dsfs3fsaengh7",
+            "code" : 7676
+            }
+
+        """
+
+        info = PasswordChangeSerializer(data=request.data)
         
-        return Response({'message': 'User was created and code send.'}, status=status.HTTP_201_CREATED)
-    else:
-        return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        if info.is_valid():
+            user = User.objects.get(email=info.validated_data['email'])
+            if (user.can_change_password):
+                if(user.code == int(info.validated_data['code'])):
+                    print(info.validated_data.get('password'))
+                    user.set_password(info.validated_data.get('password'))
+                    user.can_change_password = False
+                    user.code = randint(1000, 9999)
+                    user.save()
+
+                    return Response({'message': 'password changed.'}, status=status.HTTP_200_OK)
+                else:
+                    return Response({'message': 'wrong code!'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
@@ -101,7 +165,7 @@ def code_validation(request):
         Sample json :
         {
         "email" : "TahaM8000@gmail.com",
-        "code" : "3387"
+        "code" : "8817"
         }
 
     """
@@ -120,5 +184,62 @@ def code_validation(request):
     else:
         return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------
+class UserDeleteView(DestroyAPIView):
+    permission_classes = [IsManager]
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    lookup_field = 'pk'
 # -------------------------------------------------------------------------------------------------------------------------------
+class UserUpdateView(UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    lookup_field = 'pk'
+
+    def perform_update(self, serializer):
+        if 'password' in serializer.validated_data:
+            serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
+        serializer.save()
+# -------------------------------------------------------------------------------------------------------------------------------
+class UserDetailView(APIView):
+    permission_classes = [IsAuthenticated,IsHotelManager]
+
+    def get(self, request, pk):
+        try:
+            user = User.objects.get(id=pk)
+            serializer = UserDetailSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'detail': 'user not found.'}, status=status.HTTP_404_NOT_FOUND)
+# -------------------------------------------------------------------------------------------------------------------------------
+class TestView(APIView):
+    permission_classes = [IsManager]
+
+    def get(self, request):
+        return Response({'message':'you can see'}, status=status.HTTP_200_OK)
+# -------------------------------------------------------------------------------------------------------------------------------
+class DashboardView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        """
+
+            Sample json :
+            {
+            "email" : "TahaM8000@gmail.com"
+            }
+
+        """
+
+        info = PasswordChangeRequestSerializer(data=request.data)
+        
+
+        if info.is_valid():
+            try:
+                user = User.objects.get(email=info.validated_data['email'])
+                serializer = UserDetailSerializer(user)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except User.DoesNotExist:
+                return Response({'detail': 'user not found.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------

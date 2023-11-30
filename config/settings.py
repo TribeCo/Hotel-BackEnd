@@ -1,15 +1,14 @@
 from corsheaders.defaults import default_headers
 from pathlib import Path
 import os
-# from dotenv import load_dotenv
-# load_dotenv()
+from decouple import config
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 
-deploy = False
+deploy = True
 if(deploy):
     # deploy
     SECRET_KEY = os.getenv('SECRET_KEY', 'LIARA_URL is not set.')
@@ -17,7 +16,13 @@ if(deploy):
     password_email = os.getenv('EMAIL_HOST_PASSWORD', 'LIARA_URL is not set.')
     DEBUG = os.getenv('DEBUG', 'LIARA_URL is not set.')
     admin_url = os.getenv('ADMIN', 'LIARA_URL is not set.')
-
+else:
+    # local
+    SECRET_KEY = config('SECRET_KEY')
+    hotel_email = config('EMAIL_HOST')
+    password_email = config('EMAIL_HOST_PASSWORD')
+    admin_url = config('ADMIN')
+    DEBUG = True
 
 ALLOWED_HOSTS = ["*","89.199.35.132","192.168.45.68",]
 AUTH_USER_MODEL = 'accounts.User'
@@ -49,7 +54,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://domain.com",
     "https://api.domain.com",
     "http://localhost:3000",
-    "http://127.0.0.1:9000"
+    "http://127.0.0.1:9000",
     "http://localhost:5173",
     "http://127.0.0.1:5173"
 ]

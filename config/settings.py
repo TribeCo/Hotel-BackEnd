@@ -46,6 +46,7 @@ INSTALLED_APPS = [
 
 INSTALLED_APPS += [
     'accounts.apps.AccountsConfig',
+    'rooms.apps.RoomsConfig',
 ]
 
 
@@ -56,7 +57,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:9000",
     "http://localhost:5173",
-    "http://127.0.0.1:5173"
+    "http://127.0.0.1:5173",
 ]
 
 CORS_ORIGIN_WHITELIST = (
@@ -172,11 +173,15 @@ JWT_ALGORITHM = 'HS256'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        # 'accounts.permissions.CustomPermission',
+    ),
     
 }
 
 from datetime import timedelta
+
 # Django project settings.py
 
 SIMPLE_JWT = {
@@ -217,4 +222,3 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
-

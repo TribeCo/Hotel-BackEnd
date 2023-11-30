@@ -2,15 +2,13 @@ from corsheaders.defaults import default_headers
 from pathlib import Path
 import os
 from decouple import config
-# from dotenv import load_dotenv
-# load_dotenv()
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 
-deploy = False
+deploy = True
 if(deploy):
     # deploy
     SECRET_KEY = os.getenv('SECRET_KEY', 'LIARA_URL is not set.')
@@ -25,7 +23,6 @@ else:
     password_email = config('EMAIL_HOST_PASSWORD')
     admin_url = config('ADMIN')
     DEBUG = True
-
 
 ALLOWED_HOSTS = ["*","89.199.35.132","192.168.45.68",]
 AUTH_USER_MODEL = 'accounts.User'

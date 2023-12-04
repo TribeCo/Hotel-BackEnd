@@ -63,5 +63,13 @@ class PasswordChangeSerializer(serializers.ModelSerializer):
         model = User
         fields = [ 'email', 'code','password']
 # -------------------------------------------------------------------------------------------------------------------------------
+class EmployeeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'nationalCode', 'firstName', 'lastName', 'role','employee_id']
 # -------------------------------------------------------------------------------------------------------------------------------
-
+class EmployeeCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'nationalCode', 'firstName', 'lastName', 'role','password']
+# -------------------------------------------------------------------------------------------------------------------------------

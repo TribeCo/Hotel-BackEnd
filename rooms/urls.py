@@ -8,5 +8,6 @@ urlpatterns = [
     path('rooms/', RoomAllListAPIView.as_view(), name='all-room-list'), 
     path('rooms/<int:pk>/', RoomDetailView.as_view(), name='room-detail'),
     path('rooms/delete/<int:pk>/', RoomDeleteView.as_view(), name='room-delete'),
-    path('rooms/update/<int:pk>/', RoomUpdateView.as_view(), name='room-update')
+    path('rooms/update/<int:pk>/', RoomUpdateView.as_view(), name='room-update'),
+    path('rooms/reservation/', ReservationRoomAPIView.as_view(), name='room-reservation'),
 ]

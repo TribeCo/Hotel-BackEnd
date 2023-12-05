@@ -10,4 +10,5 @@ urlpatterns = [
     path('rooms/delete/<int:pk>/', RoomDeleteView.as_view(), name='room-delete'),
     path('rooms/update/<int:pk>/', RoomUpdateView.as_view(), name='room-update'),
     path('rooms/reservation/', ReservationRoomAPIView.as_view(), name='room-reservation'),
+     path('rooms/reservation/all/', ReservationAllListAPIView.as_view(), name='all-reservation'),
 ]

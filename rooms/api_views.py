@@ -69,7 +69,6 @@ class ReservationRoomAPIView(APIView):
 
             if(room_available.count() == 0):
                 return Response({'message': 'not found free room.'}, status=status.HTTP_400_BAD_REQUEST)
-            print(room_available)
 
             reservation_room = room_available[0]
 
@@ -88,4 +87,8 @@ class ReservationRoomAPIView(APIView):
             
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# -------------------------------------------------------------------------------------------------------------------------------
+class ReservationAllListAPIView(ListAPIView):
+    queryset =  RoomReservation.objects.all()
+    serializer_class =  ReservationListSerializer
 # -------------------------------------------------------------------------------------------------------------------------------

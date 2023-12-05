@@ -52,6 +52,8 @@ class RoomReservation(models.Model):
     check_in = models.DateTimeField()
     check_out = models.DateTimeField()
     paid = models.BooleanField(default=False)
+    been_paid = models.IntegerField(default=0)
+
 
 
     def __str__(self):
@@ -59,5 +61,8 @@ class RoomReservation(models.Model):
 
     def price(self):
         return self.night_count * self.room.type.price_one_night
+
+    def remaining(self):
+        return self.price() - self.been_paid
 
 # ----------------------------------------------------------------------------------------------------------------------------

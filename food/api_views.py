@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView,DestroyAPIView,RetrieveAPIView,UpdateAPIView
 from .serializers import *
+from rest_framework.permissions import IsAuthenticated
 from .models import Food
 # -------------------------------------------------------------------------------------------------------------------------------
 class FoodCreateAPIView(APIView):
@@ -43,4 +44,50 @@ class FoodUpdateView(UpdateAPIView):
     queryset = Food.objects.all()
     serializer_class = FoodSerializer
     lookup_field = 'pk'
+# -------------------------------------------------------------------------------------------------------------------------------
+class ReservationRoomAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    """
+        {
+            "food_id": 2
+        }
+    """
+    def post(self, request):
+        serializer = FoodReservationSerializer(data=request.data)
+
+        if serializer.is_valid():
+            food_id = int(serializer.validated_data["food_id"])
+            food = Food.objects.get(id=food_id)
+
+            if(food.remain() > 0):
+                
+                new_reservation = FoodReservation(
+                    food=food,
+                    user=request.user,
+                )
+                new_reservation.save()
+                food.reserved = food.reserved + 1
+                food.save()
+                
+                return Response({'message': 'food has reserved.'}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'message': 'food is over.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# -------------------------------------------------------------------------------------------------------------------------------
+class ReservationAllListAPIView(ListAPIView):
+    queryset =  FoodReservation.objects.all()
+    serializer_class =  FoodReservationListSerializer
+# -------------------------------------------------------------------------------------------------------------------------------
+class UserFoodPaymentAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    """
+        get food payment for user
+    """
+    def get(self, request):
+        payments_objects = request.user.food_reservations.all()
+        payments = FoodReservationListSerializer(payments_objects,many = True)
+
+        return Response({'payments': payments.data}, status=status.HTTP_200_OK)
 # -------------------------------------------------------------------------------------------------------------------------------

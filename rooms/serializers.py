@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import *
 from accounts.models import *
 # -------------------------------------------------------------------------------------------------------------------------------
-class RoomSerializer(serializers.ModelSerializer):
+class RoomTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = RoomType
         fields = ('id', 'type', 'bed_count', 'features', 'price_one_night', 'code')
@@ -16,11 +16,17 @@ class ReservationSerializer(serializers.ModelSerializer):
         model = RoomType
         fields = ('room_type_id','nights','check_in','check_out')
 # -------------------------------------------------------------------------------------------------------------------------------
-class EachRoomSerializer(serializers.ModelSerializer):
-    type = RoomSerializer()
+class RoomSerializer(serializers.ModelSerializer):
+    type = RoomTypeSerializer()
     class Meta:
         model = Room
-        fields = ('number', 'type','has_Resev')   
+        fields = ('id','number', 'type','has_Resev')
+# -------------------------------------------------------------------------------------------------------------------------------
+class RoomCreateSerializer(serializers.ModelSerializer):
+    type = serializers.IntegerField()
+    class Meta:
+        model = Room
+        fields = ('id','number', 'type','has_Resev')   
 # -------------------------------------------------------------------------------------------------------------------------------
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,11 +35,9 @@ class UserSerializer(serializers.ModelSerializer):
 # -------------------------------------------------------------------------------------------------------------------------------
 class ReservationListSerializer(serializers.ModelSerializer):
     user = UserSerializer()
-    room = EachRoomSerializer()
+    room = RoomSerializer()
     remain_paid = serializers.IntegerField(source='remaining')
     class Meta:
         model = RoomReservation
         fields = ('room','user','night_count','created','updated','check_in','check_out','paid','been_paid','remain_paid')
-
-    
 # -------------------------------------------------------------------------------------------------------------------------------

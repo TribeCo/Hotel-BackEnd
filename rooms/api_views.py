@@ -10,7 +10,16 @@ from django.db.models import Q
 from rest_framework.permissions import IsAuthenticated
 from datetime import datetime
 # -------------------------------------------------------------------------------------------------------------------------------
-class RoomCreateAPIView(APIView):
+class RoomTypeAllListAPIView(ListAPIView):
+    queryset = RoomType.objects.all()
+    serializer_class = RoomTypeSerializer
+# -------------------------------------------------------------------------------------------------------------------------------
+class RoomTypeDetailView(RetrieveAPIView):
+    queryset = RoomType.objects.all()
+    serializer_class = RoomTypeSerializer
+    lookup_field = 'pk'
+# -------------------------------------------------------------------------------------------------------------------------------
+class RoomTypeCreateAPIView(APIView):
     """
         {
             "type": "o",
@@ -20,31 +29,23 @@ class RoomCreateAPIView(APIView):
         }
     """
     def post(self, request):
-        serializer = RoomSerializer(data=request.data)
+        serializer = RoomTypeSerializer(data=request.data)
 
         if serializer.is_valid():
             serializer.save()
             return Response({'message': 'room created.','data' : serializer.data}, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 # -------------------------------------------------------------------------------------------------------------------------------
-class RoomAllListAPIView(ListAPIView):
+class RoomTypeDeleteView(DestroyAPIView):
     queryset = RoomType.objects.all()
-    serializer_class = RoomSerializer
-# -------------------------------------------------------------------------------------------------------------------------------
-class RoomDetailView(RetrieveAPIView):
-    queryset = RoomType.objects.all()
-    serializer_class = RoomSerializer
+    serializer_class = RoomTypeSerializer
     lookup_field = 'pk'
 # -------------------------------------------------------------------------------------------------------------------------------
-class RoomDeleteView(DestroyAPIView):
+class RoomTypeUpdateView(UpdateAPIView):
     queryset = RoomType.objects.all()
-    serializer_class = RoomSerializer
-    lookup_field = 'pk'
-# -------------------------------------------------------------------------------------------------------------------------------
-class RoomUpdateView(UpdateAPIView):
-    queryset = RoomType.objects.all()
-    serializer_class = RoomSerializer
+    serializer_class = RoomTypeSerializer
     lookup_field = 'pk'
 # -------------------------------------------------------------------------------------------------------------------------------
 class ReservationRoomAPIView(APIView):
@@ -91,4 +92,72 @@ class ReservationRoomAPIView(APIView):
 class ReservationAllListAPIView(ListAPIView):
     queryset =  RoomReservation.objects.all()
     serializer_class =  ReservationListSerializer
+# -------------------------------------------------------------------------------------------------------------------------------
+class RoomAllListAPIView(ListAPIView):
+    queryset = Room.objects.all()
+    serializer_class = RoomSerializer
+# -------------------------------------------------------------------------------------------------------------------------------
+class RoomDetailView(RetrieveAPIView):
+    queryset = Room.objects.all()
+    serializer_class = RoomSerializer
+    lookup_field = 'pk'
+# -------------------------------------------------------------------------------------------------------------------------------
+class RoomCreateAPIView(APIView):
+    """
+        {
+            "type": 1,
+            "number": 2
+        }
+    """
+    def post(self, request):
+        serializer = RoomCreateSerializer(data=request.data)
+
+        if serializer.is_valid():
+
+            try:
+                room_type = RoomType.objects.get(id=serializer.validated_data['type'])
+            except RoomType.DoesNotExist:
+                 return Response({'message': 'room type does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            room = Room(number = serializer.validated_data['number'],
+                type = room_type
+            )
+            room.save()
+
+            return Response({'message': 'room created.','data' : f"room id: {room.id}"}, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# -------------------------------------------------------------------------------------------------------------------------------
+class RoomDeleteView(DestroyAPIView):
+    queryset = Room.objects.all()
+    serializer_class = RoomSerializer
+    lookup_field = 'pk'
+# -------------------------------------------------------------------------------------------------------------------------------
+class RoomUpdateView(UpdateAPIView):
+    queryset = Room.objects.all()
+    serializer_class = RoomCreateSerializer
+    lookup_field = 'pk'
+
+    def put(self, request, *args, **kwargs):
+        room_id = self.kwargs['pk']
+        serializer = self.get_serializer(data=request.data)
+        
+        if serializer.is_valid():
+            try:
+                room_type = RoomType.objects.get(id=serializer.validated_data['type'])
+            except RoomType.DoesNotExist:
+                return Response({'message': 'room type does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            try:
+                room = Room.objects.get(id=room_id)
+            except Room.DoesNotExist:
+                return Response({'message': 'room does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            room.number = serializer.validated_data['number']
+            room.type = room_type
+            room.save()
+
+            return Response({'message': 'room updated.', 'data': f"room id: {room.id}"}, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------

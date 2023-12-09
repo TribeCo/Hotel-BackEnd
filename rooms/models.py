@@ -1,4 +1,5 @@
 from django.db import models
+from accounts.models import User
 # ----------------------------------------------------------------------------------------------------------------------------
 class RoomType(models.Model):
     """
@@ -33,13 +34,35 @@ class RoomType(models.Model):
 
 # ----------------------------------------------------------------------------------------------------------------------------
 class Room(models.Model):
-
     number = models.IntegerField(unique=True)
-    type = models.ForeignKey(RoomType,on_delete=models.CASCADE)
+    type = models.ForeignKey(RoomType,on_delete=models.CASCADE,related_name="rooms")
     has_Resev = models.BooleanField(default=False)
 
 
     def __str__(self):
-        return str(self.type) + "-" + str(self.bed_count)
+        return str(self.type) + "-" + str(self.number)
+
+# ----------------------------------------------------------------------------------------------------------------------------
+class RoomReservation(models.Model):
+    room = models.ForeignKey(Room,on_delete=models.CASCADE,related_name="reservations")
+    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="reservations")
+    night_count = models.IntegerField()
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    check_in = models.DateTimeField()
+    check_out = models.DateTimeField()
+    paid = models.BooleanField(default=False)
+    been_paid = models.IntegerField(default=0)
+
+
+
+    def __str__(self):
+        return str(self.room) + "-" + str(self.user) + "-" + str(self.created)
+
+    def price(self):
+        return self.night_count * self.room.type.price_one_night
+
+    def remaining(self):
+        return self.price() - self.been_paid
 
 # ----------------------------------------------------------------------------------------------------------------------------

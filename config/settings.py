@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 
-deploy = False
+deploy = True
 if(deploy):
     # deploy
     SECRET_KEY = os.getenv('SECRET_KEY', 'LIARA_URL is not set.')

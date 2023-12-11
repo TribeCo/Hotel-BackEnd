@@ -1,3 +1,4 @@
+from tkinter.tix import Tree
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from .managers import *
@@ -22,6 +23,7 @@ class User(AbstractBaseUser):
     lastName = models.CharField(max_length=100, null=True, blank=True)
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    image = models.ImageField(upload_to='users/',default ='users/image.jpg')
 
     can_change_password = models.BooleanField(default=False)
 

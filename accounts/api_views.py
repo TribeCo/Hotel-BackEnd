@@ -311,3 +311,18 @@ class EmployeeCreateView(APIView):
         else:
             return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------
+class ProfileImageUpdateView(APIView):
+    def put(self, request,pk):
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response({'message':'user not found.'},status=status.HTTP_404_NOT_FOUND) 
+        serializer = UserImageSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message':'image updated.'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# -------------------------------------------------------------------------------------------------------------------------------
+
+    
+    

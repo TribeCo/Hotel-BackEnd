@@ -73,3 +73,9 @@ class EmployeeCreateSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'email', 'nationalCode', 'firstName', 'lastName', 'role','password']
 # -------------------------------------------------------------------------------------------------------------------------------
+class UserImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('image',)
+        partial = True
+# -------------------------------------------------------------------------------------------------------------------------------

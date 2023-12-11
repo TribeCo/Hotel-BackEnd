@@ -91,3 +91,15 @@ class UserFoodPaymentAPIView(APIView):
 
         return Response({'payments': payments.data}, status=status.HTTP_200_OK)
 # -------------------------------------------------------------------------------------------------------------------------------
+class FoodImageUpdateView(APIView):
+    def put(self, request,pk):
+        try:
+            user = Food.objects.get(pk=pk)
+        except Food.DoesNotExist:
+            return Response({'message':'food not found.'},status=status.HTTP_404_NOT_FOUND) 
+        serializer = FoodImageSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message':'image updated.'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# -------------------------------------------------------------------------------------------------------------------------------

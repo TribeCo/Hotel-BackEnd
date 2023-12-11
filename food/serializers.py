@@ -26,3 +26,9 @@ class FoodReservationSerializer(serializers.ModelSerializer):
         model = Food
         fields = ('food_id',)
 # -------------------------------------------------------------------------------------------------------------------------------
+class FoodImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Food
+        fields = ('image',)
+        partial = True
+# -------------------------------------------------------------------------------------------------------------------------------

@@ -19,6 +19,7 @@ class Food(models.Model):
     reserved = models.IntegerField(default=0)
     count = models.IntegerField(default=0)
     day = models.DateField()
+    image = models.ImageField(upload_to='foods/',default ='foods/image.jpg')
     
 
 

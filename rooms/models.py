@@ -1,5 +1,6 @@
 from django.db import models
 from accounts.models import User
+from config.utils import jalali_create,persion_converter_number
 # ----------------------------------------------------------------------------------------------------------------------------
 class RoomType(models.Model):
     """
@@ -65,5 +66,10 @@ class RoomReservation(models.Model):
 
     def remaining(self):
         return self.price() - self.been_paid
+
+    def shamsi_date(self):
+        temp = jalali_create(self.check_out)
+        return f"{temp[0]}-{temp[1]}-{temp[2]}"
+
 
 # ----------------------------------------------------------------------------------------------------------------------------

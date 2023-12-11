@@ -38,9 +38,10 @@ class ReservationListSerializer(serializers.ModelSerializer):
     room = RoomSerializer()
     remain_paid = serializers.IntegerField(source='remaining')
     total_price = serializers.IntegerField(source='price')
+    date = serializers.CharField(source='shamsi_date')
     class Meta:
         model = RoomReservation
-        fields = ('room','user','night_count','created','updated','check_in','check_out','paid','been_paid','remain_paid','total_price')
+        fields = ('room','user','night_count','created','updated','check_in','check_out','paid','been_paid','remain_paid','total_price','date')
 # -------------------------------------------------------------------------------------------------------------------------------
 class RoomTypeImageSerializer(serializers.ModelSerializer):
     class Meta:

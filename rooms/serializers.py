@@ -28,13 +28,13 @@ class RoomCreateSerializer(serializers.ModelSerializer):
         model = Room
         fields = ('id','number', 'type','has_Resev')   
 # -------------------------------------------------------------------------------------------------------------------------------
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializerForRoom(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('firstName', 'lastName') 
 # -------------------------------------------------------------------------------------------------------------------------------
 class ReservationListSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    user = UserSerializerForRoom()
     room = RoomSerializer()
     remain_paid = serializers.IntegerField(source='remaining')
     total_price = serializers.IntegerField(source='price')

@@ -7,13 +7,13 @@ class FoodSerializer(serializers.ModelSerializer):
         model = Food
         fields = ('price', 'name', 'meal', 'type', 'count','day','id','date')
 # -------------------------------------------------------------------------------------------------------------------------------
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializerForFood(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('firstName', 'lastName') 
 # -------------------------------------------------------------------------------------------------------------------------------
 class FoodReservationListSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    user = UserSerializerForFood()
     food = FoodSerializer()
     remain_paid = serializers.IntegerField(source='remaining')
     total_price = serializers.IntegerField(source='price')

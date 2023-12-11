@@ -15,6 +15,7 @@ class RoomType(models.Model):
     bed_count = models.IntegerField()
     features = models.TextField()
     price_one_night = models.IntegerField()
+    image = models.ImageField(upload_to='rooms/',default ='rooms/image.jpg')
     
 
     #

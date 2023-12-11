@@ -173,3 +173,15 @@ class UserPaymentAPIView(APIView):
 
         return Response({'payments': payments.data}, status=status.HTTP_200_OK)
 # -------------------------------------------------------------------------------------------------------------------------------
+class RoomTypeImageUpdateView(APIView):
+    def put(self, request,pk):
+        try:
+            user = RoomType.objects.get(pk=pk)
+        except RoomType.DoesNotExist:
+            return Response({'message':'RoomType not found.'},status=status.HTTP_404_NOT_FOUND) 
+        serializer = RoomTypeImageSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message':'image updated.'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# -------------------------------------------------------------------------------------------------------------------------------

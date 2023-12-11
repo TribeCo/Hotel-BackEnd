@@ -42,4 +42,9 @@ class ReservationListSerializer(serializers.ModelSerializer):
         model = RoomReservation
         fields = ('room','user','night_count','created','updated','check_in','check_out','paid','been_paid','remain_paid','total_price')
 # -------------------------------------------------------------------------------------------------------------------------------
+class RoomTypeImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RoomType
+        fields = ('image',)
+        partial = True
 # -------------------------------------------------------------------------------------------------------------------------------

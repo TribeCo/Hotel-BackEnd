@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework import permissions
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
-from .utils import *
+from .utils import send_code_mail,send_mail
 from rest_framework.generics import DestroyAPIView,UpdateAPIView
 from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import IsAuthenticated
@@ -87,7 +87,7 @@ class UserCreateView(APIView):
             user.save()
 
             # send Code to User
-            send_mail(info.validated_data['email'], code)
+            send_code_mail(info.validated_data['email'], code)
 
             return Response({'message': 'User was created and code sent.'}, status=status.HTTP_201_CREATED)
         else:
@@ -117,7 +117,7 @@ class PasswordChangeRequest(APIView):
             user.save()
 
             # send Code to User
-            send_mail(info.validated_data['email'], code)
+            send_code_mail(info.validated_data['email'], code)
             
             return Response({'message': 'code sent.'}, status=status.HTTP_201_CREATED)
         else:
@@ -323,6 +323,21 @@ class ProfileImageUpdateView(APIView):
             return Response({'message':'image updated.','link':f"https://hotelback.iran.liara.run{user.image.url}"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------
+class ContactUs(APIView):
 
+    def post(self,request):
+
+        info = ContactUsSerializer(data=request.data)
+
+        if info.is_valid():
+           info.save()
+           send_mail(info.validated_data['name'],info.validated_data['subject'],info.validated_data['text'],info.validated_data['email'])
+
+           return Response({'message': 'send to admin.'}, status=status.HTTP_201_CREATED) 
+
+        else:
+            return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# -------------------------------------------------------------------------------------------------------------------------------
     
     

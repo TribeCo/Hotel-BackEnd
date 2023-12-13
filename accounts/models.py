@@ -50,3 +50,13 @@ class User(AbstractBaseUser):
     def is_staff(self):
         return self.is_admin
 # ----------------------------------------------------------------------------------------------------------------------------
+class ContactUs(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    subject = models.CharField(max_length=100)
+    text = models.TextField()
+
+
+    def __str__(self):
+        return str(self.name) + " - " + str(self.subject)
+# ----------------------------------------------------------------------------------------------------------------------------

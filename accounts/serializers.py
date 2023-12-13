@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User,ContactUs
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 # -------------------------------------------------------------------------------------------------------------------------------
@@ -78,4 +78,9 @@ class UserImageSerializer(serializers.ModelSerializer):
         model = User
         fields = ('image',)
         partial = True
+# -------------------------------------------------------------------------------------------------------------------------------
+class ContactUsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactUs
+        fields = ('name','email','subject','text')
 # -------------------------------------------------------------------------------------------------------------------------------

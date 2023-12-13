@@ -24,6 +24,7 @@ urlpatterns = [
     path('dashboard/', DashboardView.as_view(), name='dashboard'),
     path('employees/', EmployeeListView.as_view(), name='employees'),
     path('employees/create/', EmployeeCreateView.as_view(), name='employee-create'),
+    path('contact/email/', ContactUs.as_view(), name='contactus-email'),
     path('test/',TestView.as_view(),name='test'),
 
 ]

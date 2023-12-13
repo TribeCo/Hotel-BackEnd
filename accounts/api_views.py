@@ -14,6 +14,7 @@ from rest_framework.generics import DestroyAPIView,UpdateAPIView
 from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import IsAuthenticated
 from accounts.permissions import *
+from django.db.models import Q
 # -------------------------------------------------------------------------------------------------------------------------------
 """
     api's in api_views.py :
@@ -201,12 +202,21 @@ class UserUpdateView(UpdateAPIView):
             serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
         serializer.save()
 # -------------------------------------------------------------------------------------------------------------------------------
-class UserDetailView(APIView):
-    permission_classes = [IsAuthenticated,IsHotelManager]
-
-    def get(self, request, pk):
+class UserDetailPKView(APIView):
+    permission_classes = [IsAuthenticated,IsManager]
+    def get(self, request,pk):
         try:
             user = User.objects.get(id=pk)
+            serializer = UserDetailSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'detail': 'user not found.'}, status=status.HTTP_404_NOT_FOUND)
+# -------------------------------------------------------------------------------------------------------------------------------
+class UserDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        try:
+            user = request.user
             serializer = UserDetailSerializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except User.DoesNotExist:
@@ -243,3 +253,76 @@ class DashboardView(APIView):
                 return Response({'detail': 'user not found.'}, status=status.HTTP_404_NOT_FOUND)
         return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------
+class EmployeeListView(APIView):
+    permission_classes = [IsAuthenticated,IsHotelManager]
+
+    def get(self, request):
+        employees = User.objects.filter(Q(role='m') | Q(role='d') | Q(role='a')| Q(role='r'))
+        serializer = EmployeeSerializer(employees, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+# -------------------------------------------------------------------------------------------------------------------------------
+class EmployeeCreateView(APIView):
+    permission_classes = [IsAuthenticated,IsHotelManager]
+    def post(self, request):
+        """
+        Create Employee with Post Api
+
+        Sample json :
+        {
+        "email" : "TahaM8000@gmail.com",
+        "nationalCode" : "0112037754",
+        "firstName" : "Taha",
+        "lastName" : "Mousavi",
+        "password" : "1234jj5678",
+        "role" : "m"
+        }
+
+        """
+
+        info = EmployeeCreateSerializer(data=request.data)
+
+        if info.is_valid():
+            # Check if the nationalCode is duplicated
+            if User.objects.filter(nationalCode=info.validated_data['nationalCode']).exists():
+                return Response({'message': 'The national code is duplicated.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Check if the email is duplicated
+            if User.objects.filter(email=info.validated_data['email']).exists():
+                return Response({'message': 'The email is duplicated.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            
+
+            User(nationalCode=info.validated_data['nationalCode'],
+                 email=info.validated_data['email'],
+                 is_active=True,
+                 is_admin=True,
+                 firstName=info.validated_data['firstName'],
+                 lastName=info.validated_data['lastName'],
+                 role=info.validated_data['role'],
+                ).save()
+
+            user = User.objects.get(email=info.validated_data['email'])
+            user.set_password(info.validated_data['password'])
+            user.employee_id = user.id 
+            user.save()
+
+
+            return Response({'message': 'employee was created.'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
+# -------------------------------------------------------------------------------------------------------------------------------
+class ProfileImageUpdateView(APIView):
+    def put(self, request,pk):
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response({'message':'user not found.'},status=status.HTTP_404_NOT_FOUND) 
+        serializer = UserImageSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message':'image updated.','link':f"https://hotelback.iran.liara.run{user.image.url}"}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# -------------------------------------------------------------------------------------------------------------------------------
+
+    
+    

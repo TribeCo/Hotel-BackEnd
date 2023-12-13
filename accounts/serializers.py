@@ -47,7 +47,7 @@ class CodeValidationSerializers(serializers.ModelSerializer):
 class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'nationalCode', 'firstName', 'lastName', 'role']
+        fields = ['id', 'email', 'nationalCode', 'firstName', 'lastName', 'role','image']
 # -------------------------------------------------------------------------------------------------------------------------------
 class PasswordChangeRequestSerializer(serializers.ModelSerializer):
     email = serializers.CharField()
@@ -63,5 +63,19 @@ class PasswordChangeSerializer(serializers.ModelSerializer):
         model = User
         fields = [ 'email', 'code','password']
 # -------------------------------------------------------------------------------------------------------------------------------
+class EmployeeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'nationalCode', 'firstName', 'lastName', 'role','employee_id']
 # -------------------------------------------------------------------------------------------------------------------------------
-
+class EmployeeCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'nationalCode', 'firstName', 'lastName', 'role','password']
+# -------------------------------------------------------------------------------------------------------------------------------
+class UserImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('image',)
+        partial = True
+# -------------------------------------------------------------------------------------------------------------------------------

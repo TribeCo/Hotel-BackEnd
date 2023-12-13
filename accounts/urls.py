@@ -17,8 +17,13 @@ urlpatterns = [
     path('users/delete/<int:pk>/', UserDeleteView.as_view(), name='user-delete'),
     path('users/update/<int:pk>/', UserUpdateView.as_view(), name='user-update'),
     path('users/update/password/', PasswordChangeRequest.as_view(), name='user-chagne-password-request'),
+    path('users/update/image/<int:pk>/', ProfileImageUpdateView.as_view(), name='user-update-image'),
     path('users/change/password/', ChangePassword.as_view(), name='user-chagne-password'),
-    path('users/detail/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
+    path('users/detail/', UserDetailView.as_view(), name='user-detail'),
+    path('users/detail/<int:pk>/', UserDetailPKView.as_view(), name='user-pk-detail'),
     path('dashboard/', DashboardView.as_view(), name='dashboard'),
+    path('employees/', EmployeeListView.as_view(), name='employees'),
+    path('employees/create/', EmployeeCreateView.as_view(), name='employee-create'),
     path('test/',TestView.as_view(),name='test'),
+
 ]

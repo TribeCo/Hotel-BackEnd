@@ -5,7 +5,7 @@ class FoodSerializer(serializers.ModelSerializer):
     date = serializers.CharField(source='shamsi_date')
     class Meta:
         model = Food
-        fields = ('price', 'name', 'meal', 'type', 'count','day','id','date')
+        fields = ('price', 'name', 'meal', 'type', 'count','day','id','date','image')
 # -------------------------------------------------------------------------------------------------------------------------------
 class UserSerializerForFood(serializers.ModelSerializer):
     class Meta:

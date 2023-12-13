@@ -47,7 +47,7 @@ class CodeValidationSerializers(serializers.ModelSerializer):
 class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'nationalCode', 'firstName', 'lastName', 'role']
+        fields = ['id', 'email', 'nationalCode', 'firstName', 'lastName', 'role','image']
 # -------------------------------------------------------------------------------------------------------------------------------
 class PasswordChangeRequestSerializer(serializers.ModelSerializer):
     email = serializers.CharField()

@@ -162,7 +162,7 @@ class ReservationAllListAPIView(ListAPIView):
     serializer_class =  ReservationListSerializer
 # -------------------------------------------------------------------------------------------------------------------------------
 class UserPaymentAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     serializer_class = ReservationListSerializer
     """
         get payment for user

@@ -37,6 +37,27 @@ class UserSerializer(serializers.ModelSerializer):
 
         return value
 # -------------------------------------------------------------------------------------------------------------------------------
+class UserUpdateSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(required=False)
+    class Meta:
+        model = User
+        fields = [ 'firstName', 'lastName', 'password']
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation.pop('password', None)
+        return representation
+# -------------------------------------------------------------------------------------------------------------------------------
+class UpdateRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [ 'role','firstName', 'lastName', 'password']
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation.pop('password', None)
+        return representation
+# -------------------------------------------------------------------------------------------------------------------------------
 class CodeValidationSerializers(serializers.ModelSerializer):
     email = serializers.CharField()
     code = serializers.CharField()

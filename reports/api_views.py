@@ -45,4 +45,39 @@ class FoodSalesReportAPIView(APIView):
 
         return Response(report_data)
 # -------------------------------------------------------------------------------------------------------------------------------
+class RoomReservationReportAPIView(APIView):
+    def get(self, request):
+        today = date.today()
+        one_year_ago = today - timedelta(days=365)
+        one_month_ago = today - timedelta(days=30)
+        one_day_ago = today - timedelta(days=0)
+
+        reservation_queryset = RoomReservation.objects.filter(paid=True)
+
+        # last month
+        monthly_reservation = reservation_queryset.filter(created__gte=one_month_ago)
+        total_monthly_reservation = monthly_reservation.aggregate(total_reservation=Sum(F('night_count') * F('room__type__price_one_night')))['total_reservation'] or 0
+        total_monthly_count = monthly_reservation.count()
+
+        # last year
+        yearly_reservation = reservation_queryset.filter(created__gte=one_year_ago)
+        total_yearly_reservation = yearly_reservation.aggregate(total_reservation=Sum(F('night_count') * F('room__type__price_one_night')))['total_reservation'] or 0
+        total_yearly_count = yearly_reservation.count()
+        
+
+        # last day
+        daily_reservation = reservation_queryset.filter(created__date=one_day_ago)
+        total_daily_reservation = daily_reservation.aggregate(total_reservation=Sum(F('night_count') * F('room__type__price_one_night')))['total_reservation'] or 0
+        total_daily_count = daily_reservation.count()
+
+        report_data = {
+            'monthly_reservation': total_monthly_reservation,
+            'monthly_count' : total_monthly_count,
+            'yearly_reservation': total_yearly_reservation,
+            'yearly_count' : total_yearly_count,
+            'daily_reservation': total_daily_reservation,
+            'daily_count' : total_daily_count,
+        }
+
+        return Response(report_data)
 # -------------------------------------------------------------------------------------------------------------------------------

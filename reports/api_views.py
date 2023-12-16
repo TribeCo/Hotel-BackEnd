@@ -58,25 +58,49 @@ class RoomReservationReportAPIView(APIView):
         monthly_reservation = reservation_queryset.filter(created__gte=one_month_ago)
         total_monthly_reservation = monthly_reservation.aggregate(total_reservation=Sum(F('night_count') * F('room__type__price_one_night')))['total_reservation'] or 0
         total_monthly_count = monthly_reservation.count()
+        total_monthly_person = monthly_reservation.aggregate(total_person=Sum('room__type__bed_count'))['total_person'] or 0
 
         # last year
         yearly_reservation = reservation_queryset.filter(created__gte=one_year_ago)
         total_yearly_reservation = yearly_reservation.aggregate(total_reservation=Sum(F('night_count') * F('room__type__price_one_night')))['total_reservation'] or 0
         total_yearly_count = yearly_reservation.count()
+        total_yearly_person = yearly_reservation.aggregate(total_person=Sum('room__type__bed_count'))['total_person'] or 0
         
 
         # last day
         daily_reservation = reservation_queryset.filter(created__date=one_day_ago)
         total_daily_reservation = daily_reservation.aggregate(total_reservation=Sum(F('night_count') * F('room__type__price_one_night')))['total_reservation'] or 0
         total_daily_count = daily_reservation.count()
+        total_daily_person = daily_reservation.aggregate(total_person=Sum('room__type__bed_count'))['total_person'] or 0
 
         report_data = {
             'monthly_reservation': total_monthly_reservation,
             'monthly_count' : total_monthly_count,
+            'monthly_person' : total_monthly_person,
+
             'yearly_reservation': total_yearly_reservation,
             'yearly_count' : total_yearly_count,
+            'yearly_person' : total_yearly_person,
+
             'daily_reservation': total_daily_reservation,
             'daily_count' : total_daily_count,
+            'daily_person' : total_daily_person,
+        }
+
+        return Response(report_data)
+# -------------------------------------------------------------------------------------------------------------------------------
+class AllReportAPIView(APIView):
+    def get(self, request):
+        food_sales_report = FoodSalesReportAPIView()
+        room_reservation_report = RoomReservationReportAPIView()
+
+        food_sales_data = food_sales_report.get(request).data
+        room_reservation_data = room_reservation_report.get(request).data
+
+
+        report_data = {
+            'food_sales': food_sales_data,
+            'room_reservation': room_reservation_data
         }
 
         return Response(report_data)

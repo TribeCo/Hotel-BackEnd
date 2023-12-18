@@ -13,5 +13,4 @@ urlpatterns = [
     path('food/reservation/', ReservationRoomAPIView.as_view(), name='food-reservation'),
     path('food/reservation/all/', ReservationAllListAPIView.as_view(), name='food-list-reservation'),
     path('food/reservation/user/', UserFoodPaymentAPIView.as_view(), name='user-food-reservation'),
-
 ]

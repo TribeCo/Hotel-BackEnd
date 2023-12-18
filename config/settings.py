@@ -48,6 +48,7 @@ INSTALLED_APPS += [
     'accounts.apps.AccountsConfig',
     'rooms.apps.RoomsConfig',
     'food.apps.FoodConfig',
+    'reports.apps.ReportsConfig',
 ]
 
 

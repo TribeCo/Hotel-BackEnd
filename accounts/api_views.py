@@ -194,7 +194,7 @@ class UserDeleteView(DestroyAPIView):
 class UserUpdateView(UpdateAPIView):
     permission_classes = [IsAuthenticated]
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = UserUpdateSerializer
     lookup_field = 'pk'
 
     def perform_update(self, serializer):
@@ -323,8 +323,13 @@ class ProfileImageUpdateView(APIView):
             return Response({'message':'image updated.','link':f"https://hotelback.iran.liara.run{user.image.url}"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 # -------------------------------------------------------------------------------------------------------------------------------
+class UpdateRoleView(UpdateAPIView):
+    permission_classes = [IsAuthenticated,IsHotelManager]
+    queryset = User.objects.all()
+    serializer_class = UpdateRoleSerializer
+    lookup_field = 'pk'
+# -------------------------------------------------------------------------------------------------------------------------------
 class ContactUs(APIView):
-
     def post(self,request):
 
         info = ContactUsSerializer(data=request.data)

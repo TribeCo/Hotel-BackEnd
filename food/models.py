@@ -58,4 +58,10 @@ class FoodReservation(models.Model):
         temp = jalali_create(self.created)
         return f"{temp[0]}-{temp[1]}-{temp[2]}"
 
+    def payed(self):
+        self.paid = True
+        self.been_paid = self.price()
+        self.save()
+
+
 # ----------------------------------------------------------------------------------------------------------------------------

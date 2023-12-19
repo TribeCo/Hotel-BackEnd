@@ -14,6 +14,7 @@ if(deploy):
     SECRET_KEY = os.getenv('SECRET_KEY', 'LIARA_URL is not set.')
     hotel_email = os.getenv('EMAIL_HOST', 'LIARA_URL is not set.')
     password_email = os.getenv('EMAIL_HOST_PASSWORD', 'LIARA_URL is not set.')
+    merchant = os.getenv('MERCHANT', 'LIARA_URL is not set.')
     DEBUG = os.getenv('DEBUG', 'LIARA_URL is not set.')
     admin_url = os.getenv('ADMIN', 'LIARA_URL is not set.')
 else:
@@ -21,6 +22,7 @@ else:
     SECRET_KEY = config('SECRET_KEY')
     hotel_email = config('EMAIL_HOST')
     password_email = config('EMAIL_HOST_PASSWORD')
+    merchant = config('MERCHANT')
     admin_url = config('ADMIN')
     DEBUG = True
 

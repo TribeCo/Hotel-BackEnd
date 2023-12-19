@@ -71,5 +71,10 @@ class RoomReservation(models.Model):
         temp = jalali_create(self.check_out)
         return f"{temp[0]}-{temp[1]}-{temp[2]}"
 
+    def payed(self):
+        self.paid = True
+        self.been_paid = self.price()
+        self.save()
+
 
 # ----------------------------------------------------------------------------------------------------------------------------

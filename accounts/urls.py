@@ -28,4 +28,12 @@ urlpatterns = [
     path('users/role/update/<int:pk>/', UpdateRoleView.as_view(), name='role-update'),
     path('test/',TestView.as_view(),name='test'),
 
+    
+    path('comments/room/create/', RoomCommentCreateView.as_view(), name='comments-room-create'),
+    path('comments/food/create/', FoodCommentCreateView.as_view(), name='comments-food-create'),
+
+    path('comments/delete/<int:pk>/', CommentDeleteView.as_view(), name='comments-delete'),
+    path('comments/update/<int:pk>/', CommentUpdateView.as_view(), name='comments-update'),
+    
+
 ]

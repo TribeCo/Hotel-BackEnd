@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User,ContactUs
+from .models import *
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 # -------------------------------------------------------------------------------------------------------------------------------
@@ -104,4 +104,24 @@ class ContactUsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactUs
         fields = ('name','email','subject','text')
+# -------------------------------------------------------------------------------------------------------------------------------
+class RoomCommentCreateSerializer(serializers.ModelSerializer):
+    user_id = serializers.IntegerField()
+    room_id = serializers.IntegerField()
+    class Meta:
+        model = RoomComment
+        fields = ('user_id','room_id','text','rating',)
+# -------------------------------------------------------------------------------------------------------------------------------
+class CommentSerializer(serializers.ModelSerializer):
+    user = UserSerializer(required=False)
+    class Meta:
+        model = Comment
+        fields = "__all__"
+# -------------------------------------------------------------------------------------------------------------------------------
+class FoodCommentCreateSerializer(serializers.ModelSerializer):
+    user_id = serializers.IntegerField()
+    food_id = serializers.IntegerField()
+    class Meta:
+        model = RoomComment
+        fields = ('user_id','food_id','text','rating',)
 # -------------------------------------------------------------------------------------------------------------------------------

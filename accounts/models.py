@@ -1,7 +1,9 @@
-from tkinter.tix import Tree
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from .managers import *
+from config.utils import jalali_converter_with_hour
+from django.utils import timezone
+from django.core.validators import MaxValueValidator, MinValueValidator
 # ----------------------------------------------------------------------------------------------------------------------------
 class User(AbstractBaseUser):
     """
@@ -85,6 +87,44 @@ class ContactUs(models.Model):
 
     def __str__(self):
         return str(self.name) + " - " + str(self.subject)
+# ----------------------------------------------------------------------------------------------------------------------------
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
+    text = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
+    valid = models.BooleanField(default=False)
+    rating = models.FloatField(default=0, validators=[MaxValueValidator(5), MinValueValidator(0)])
+
+
+    def __str__(self):
+        return f"{self.user}"
+
+    def star_rating(self):
+        return self.rating * 20
+
+    def shamsi_date(self):
+        return jalali_converter_with_hour(self.created) 
+    
+    def days_since_creation(self):
+        now = timezone.now()
+        created_naive = timezone.make_naive(self.created, timezone.get_default_timezone())
+        created_aware = timezone.make_aware(created_naive, timezone.get_default_timezone())
+        days = (now - created_aware).days
+        return f"{days} روز پیش"
+# ----------------------------------------------------------------------------------------------------------------------------
+from food.models import Food
+class FoodComment(Comment):
+    food = models.ForeignKey(Food, on_delete=models.CASCADE, related_name="comments")
+
+    def __str__(self):
+        return f"{self.user} - {self.food}"
+# ----------------------------------------------------------------------------------------------------------------------------
+from rooms.models import RoomType
+class RoomComment(Comment):
+    room = models.ForeignKey(RoomType, on_delete=models.CASCADE, related_name="comments")
+
+    def __str__(self):
+        return f"{self.user} - {self.room}"
 # ----------------------------------------------------------------------------------------------------------------------------
 class Payments(models.Model):
     ref_id = models.CharField(max_length=100)

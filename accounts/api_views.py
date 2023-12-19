@@ -2,8 +2,9 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
+from rooms.models import RoomType
 from .serializers import *
-from .models import User
+from .models import *
 from random import randint
 from rest_framework.views import APIView
 from rest_framework import permissions
@@ -344,5 +345,85 @@ class ContactUs(APIView):
             return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # -------------------------------------------------------------------------------------------------------------------------------
-    
-    
+class RoomCommentCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        """
+        Create RoomComment with Post Api
+
+        
+        """
+
+        info = RoomCommentCreateSerializer(data=request.data)
+
+        if info.is_valid():
+            try:
+                user = User.objects.get(id=info.validated_data['user_id'])
+            except User.DoesNotExist:
+                return Response({'message': 'user not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+            try:
+                room = RoomType.objects.get(id=info.validated_data['room_id'])
+            except RoomType.DoesNotExist:
+                return Response({'message': 'room not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+            
+            room_cm = RoomComment(
+                user = user,
+                room = room,
+                rating = info.validated_data['rating'],
+                text = info.validated_data['text'],
+            )
+            room_cm.save()
+
+            return Response({'message': 'comment was created.'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)    
+# -------------------------------------------------------------------------------------------------------------------------------
+class FoodCommentCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        """
+        Create FoodComment with Post Api
+
+        
+        """
+
+        info = FoodCommentCreateSerializer(data=request.data)
+
+        if info.is_valid():
+            try:
+                user = User.objects.get(id=info.validated_data['user_id'])
+            except User.DoesNotExist:
+                return Response({'message': 'user not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+            try:
+                food = Food.objects.get(id=info.validated_data['food_id'])
+            except Food.DoesNotExist:
+                return Response({'message': 'food not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+            
+            food_cm = FoodComment(
+                user = user,
+                food = food,
+                rating = info.validated_data['rating'],
+                text = info.validated_data['text'],
+            )
+            food_cm.save()
+
+            return Response({'message': 'comment was created.'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(info.errors, status=status.HTTP_400_BAD_REQUEST) 
+# -------------------------------------------------------------------------------------------------------------------------------
+class CommentDeleteView(DestroyAPIView):
+    permission_classes = [IsManager]
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    lookup_field = 'pk'
+# -------------------------------------------------------------------------------------------------------------------------------
+class CommentUpdateView(UpdateAPIView):
+    permission_classes = [IsManager]
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    lookup_field = 'pk'
+# -------------------------------------------------------------------------------------------------------------------------------

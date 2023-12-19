@@ -1,11 +1,13 @@
 from rest_framework import serializers
 from .models import *
 from accounts.models import *
+from accounts.serializers import CommentSerializer
 # -------------------------------------------------------------------------------------------------------------------------------
 class RoomTypeSerializer(serializers.ModelSerializer):
+    comments = CommentSerializer(many=True,required=False)
     class Meta:
         model = RoomType
-        fields = ('id', 'type', 'bed_count', 'features', 'price_one_night', 'code','image')
+        fields = ('id', 'type', 'bed_count', 'features', 'price_one_night', 'code','image','comments')
 # -------------------------------------------------------------------------------------------------------------------------------
 class ReservationSerializer(serializers.ModelSerializer):
     check_in = serializers.CharField()

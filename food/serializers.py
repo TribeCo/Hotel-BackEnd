@@ -1,11 +1,13 @@
 from rest_framework import serializers
 from .models import *
+from accounts.serializers import CommentSerializer
 # -------------------------------------------------------------------------------------------------------------------------------
 class FoodSerializer(serializers.ModelSerializer):
     date = serializers.CharField(source='shamsi_date')
+    comments = CommentSerializer(many=True,required=False)
     class Meta:
         model = Food
-        fields = ('price', 'name', 'meal', 'type', 'count','day','id','date','image')
+        fields = ('price', 'name', 'meal', 'type', 'count','day','id','date','image','comments')
 # -------------------------------------------------------------------------------------------------------------------------------
 class UserSerializerForFood(serializers.ModelSerializer):
     class Meta:

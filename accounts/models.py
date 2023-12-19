@@ -23,7 +23,7 @@ class User(AbstractBaseUser):
     lastName = models.CharField(max_length=100, null=True, blank=True)
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
-    image = models.ImageField(upload_to='users/',default ='users/image.jpg')
+    image = models.ImageField(upload_to='users/',default ='users/image.jpg') 
 
     can_change_password = models.BooleanField(default=False)
 
@@ -45,6 +45,32 @@ class User(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return True
 
+    def total_price(self):
+        room_reservations = self.reservations.filter(paid=False)
+        food_reservations = self.food_reservations.filter(paid=False)
+
+        total = 0
+        for reservation in room_reservations:
+            total += reservation.remaining()
+
+        print(total)
+        for reservation in food_reservations:
+            total += reservation.remaining()
+
+        print(total)
+
+
+        return total
+
+    def all_payed(self):
+        for reservation in self.reservations.filter(paid=False):
+            reservation.payed()
+
+        for reservation in self.food_reservations.filter(paid=False):
+            reservation.payed()
+        
+        return 0
+
 
     @property
     def is_staff(self):
@@ -59,4 +85,14 @@ class ContactUs(models.Model):
 
     def __str__(self):
         return str(self.name) + " - " + str(self.subject)
+# ----------------------------------------------------------------------------------------------------------------------------
+class Payments(models.Model):
+    ref_id = models.CharField(max_length=100)
+    authority = models.CharField(max_length=100)
+    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="payments")
+    amount = models.IntegerField()
+
+
+    def __str__(self):
+        return str(self.user) + " - " + str(self.amount)
 # ----------------------------------------------------------------------------------------------------------------------------

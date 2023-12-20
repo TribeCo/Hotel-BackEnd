@@ -1,10 +1,10 @@
-from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.models import AbstractBaseUser
-from .managers import *
 from config.utils import jalali_converter_with_hour
 from django.utils import timezone
-from django.core.validators import MaxValueValidator, MinValueValidator
-# ----------------------------------------------------------------------------------------------------------------------------
+from django.db import models
+from .managers import MyUserManager
+#--------------------------------------------------------
 class User(AbstractBaseUser):
     """
         main User object that extends django-user
@@ -18,7 +18,6 @@ class User(AbstractBaseUser):
         ('a','پذیرش هتل'),
         ('r','مدیر رستوران'),
     ) 
-    # phoneNumber = models.CharField(unique=True, max_length=11)
     email = models.EmailField(unique=True)
     nationalCode = models.CharField(unique=True, max_length=10)
     firstName = models.CharField(max_length=100, null=True, blank=True)
@@ -77,7 +76,7 @@ class User(AbstractBaseUser):
     @property
     def is_staff(self):
         return self.is_admin
-# ----------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------
 class ContactUs(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()
@@ -87,7 +86,7 @@ class ContactUs(models.Model):
 
     def __str__(self):
         return str(self.name) + " - " + str(self.subject)
-# ----------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
     text = models.TextField()
@@ -111,21 +110,21 @@ class Comment(models.Model):
         created_aware = timezone.make_aware(created_naive, timezone.get_default_timezone())
         days = (now - created_aware).days
         return f"{days} روز پیش"
-# ----------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------
 from food.models import Food
 class FoodComment(Comment):
     food = models.ForeignKey(Food, on_delete=models.CASCADE, related_name="comments")
 
     def __str__(self):
         return f"{self.user} - {self.food}"
-# ----------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------
 from rooms.models import RoomType
 class RoomComment(Comment):
     room = models.ForeignKey(RoomType, on_delete=models.CASCADE, related_name="comments")
 
     def __str__(self):
         return f"{self.user} - {self.room}"
-# ----------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------
 class Payments(models.Model):
     ref_id = models.CharField(max_length=100)
     authority = models.CharField(max_length=100)
@@ -135,4 +134,4 @@ class Payments(models.Model):
 
     def __str__(self):
         return str(self.user) + " - " + str(self.amount)
-# ----------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------

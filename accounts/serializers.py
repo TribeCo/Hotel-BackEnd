@@ -1,8 +1,7 @@
 from rest_framework import serializers
-from .models import *
+from .models import User,ContactUs,Comment,RoomComment,FoodComment
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.views import TokenObtainPairView
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class EnhancedTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
@@ -12,7 +11,7 @@ class EnhancedTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['email'] = user.email
         # ...
         return token
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -36,7 +35,7 @@ class UserSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("nationalCode not valid.")
 
         return value
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class UserUpdateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(required=False)
     class Meta:
@@ -47,7 +46,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation.pop('password', None)
         return representation
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class UpdateRoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -57,25 +56,25 @@ class UpdateRoleSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation.pop('password', None)
         return representation
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class CodeValidationSerializers(serializers.ModelSerializer):
     email = serializers.CharField()
     code = serializers.CharField()
     class Meta:
         model = User
         fields = ['email', 'code']
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email', 'nationalCode', 'firstName', 'lastName', 'role','image']
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class PasswordChangeRequestSerializer(serializers.ModelSerializer):
     email = serializers.CharField()
     class Meta:
         model = User
         fields = [ 'email']
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class PasswordChangeSerializer(serializers.ModelSerializer):
     email = serializers.CharField()
     code = serializers.CharField()
@@ -83,45 +82,45 @@ class PasswordChangeSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [ 'email', 'code','password']
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email', 'nationalCode', 'firstName', 'lastName', 'role','employee_id']
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class EmployeeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email', 'nationalCode', 'firstName', 'lastName', 'role','password']
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class UserImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('image',)
         partial = True
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class ContactUsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactUs
         fields = ('name','email','subject','text')
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class RoomCommentCreateSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField()
     room_id = serializers.IntegerField()
     class Meta:
         model = RoomComment
         fields = ('user_id','room_id','text','rating',)
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class CommentSerializer(serializers.ModelSerializer):
     user = UserSerializer(required=False)
     class Meta:
         model = Comment
         fields = "__all__"
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class FoodCommentCreateSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField()
     food_id = serializers.IntegerField()
     class Meta:
-        model = RoomComment
+        model = FoodComment
         fields = ('user_id','food_id','text','rating',)
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------

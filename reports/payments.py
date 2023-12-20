@@ -1,12 +1,8 @@
-from django.shortcuts import render,get_object_or_404,redirect
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
-from django.contrib import messages
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from accounts.models import User,Payments
 from config.settings import merchant
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 #------------------------------------------------------------------------------------------------
 messages_dict = {
     "not_order" : 'جنین سفارشی در دیتابیس وجود ندارد.',
@@ -26,7 +22,14 @@ color_messages = {
     "gray" : 'background-color: rgb(108, 105, 105);',
 }
 #-----------------------------------------------------------------------------------
-#Zarinpal
+"""
+    this file is for connecting to Banking portal.
+        
+"""
+#-----------------------------------------------------------------------------------
+"""
+    this block for config with ZarinPal portal.
+"""
 from django.http import HttpResponse
 import requests
 import json
@@ -49,8 +52,11 @@ CallbackURL = 'http://localhost:8000/api/verify/' #Change thiiiiiiiiiiiiiiiis to
 
 user_id = 1450
 user = None
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class PayMoneyAPIView(APIView):
+    """
+        Create a link for redirecting user to portal bank.
+    """
     permission_classes = [IsAuthenticated]
     def get(self, request):
 
@@ -95,8 +101,11 @@ class PayMoneyAPIView(APIView):
         except requests.exceptions.ConnectionError:
             return Response({'message':messages_dict['not_success_connect'],})
         
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class VerifyAPIView(APIView):
+    """
+        This api checks whether the payment has been made correctly or not.
+    """
     def get(self, request):
         t_status = request.GET.get('Status')
         t_authority = request.GET['Authority']
@@ -148,4 +157,4 @@ class VerifyAPIView(APIView):
                 return Response({'message':messages_dict['not_success_connect'],})
         else:
             return Response({'message':messages_dict['not_success_connect'],})
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------

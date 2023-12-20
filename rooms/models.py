@@ -1,7 +1,7 @@
 from django.db import models
 from accounts.models import User
-from config.utils import jalali_create,persion_converter_number
-# ----------------------------------------------------------------------------------------------------------------------------
+from config.utils import jalali_create
+#--------------------------------------------------------
 class RoomType(models.Model):
     """
         Rooms Model.
@@ -17,9 +17,6 @@ class RoomType(models.Model):
     features = models.TextField()
     price_one_night = models.IntegerField()
     image = models.ImageField(upload_to='rooms/',default ='rooms/image.jpg')
-    
-
-    #
 
     code = models.IntegerField(blank=True,null=True)
 
@@ -33,8 +30,7 @@ class RoomType(models.Model):
 
     def n_night(self,n):
         return n * self.price_one_night
-
-# ----------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------
 class Room(models.Model):
     number = models.IntegerField(unique=True)
     type = models.ForeignKey(RoomType,on_delete=models.CASCADE,related_name="rooms")
@@ -43,8 +39,7 @@ class Room(models.Model):
 
     def __str__(self):
         return str(self.type) + "-" + str(self.number)
-
-# ----------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------
 class RoomReservation(models.Model):
     room = models.ForeignKey(Room,on_delete=models.CASCADE,related_name="reservations")
     user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="reservations")
@@ -75,6 +70,4 @@ class RoomReservation(models.Model):
         self.paid = True
         self.been_paid = self.price()
         self.save()
-
-
-# ----------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------

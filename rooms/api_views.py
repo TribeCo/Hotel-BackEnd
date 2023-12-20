@@ -1,26 +1,49 @@
-from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework import status
-from .serializers import *
-from rest_framework import permissions
-from rest_framework.views import APIView
-from .models import *
 from rest_framework.generics import ListAPIView,DestroyAPIView,RetrieveAPIView,UpdateAPIView
-from django.db.models import Q
+from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework import status
 from datetime import datetime
-# -------------------------------------------------------------------------------------------------------------------------------
+from .serializers import RoomTypeSerializer,RoomSerializer,ReservationListSerializer,RoomCreateSerializer,RoomTypeImageSerializer,ReservationSerializer
+from .models import RoomType,Room,RoomReservation
+#--------------------------------------------------------
+"""
+    Food reservation and food CRUD are coded in this app.
+    api's in api_views.py :
+
+    1- RoomTypeAllListAPIView --> get a list of all types of hotel rooms.
+    2- RoomTypeDetailView --> Get information of a specific type of room.
+    3- RoomTypeCreateAPIView  --> api to create an object from the room type.
+    4- RoomTypeDeleteView --> delete an object from the room type with pk.
+    5- RoomTypeUpdateView --> update information an object from the room type with pk.
+    6- RoomTypeImageUpdateView --> update image of an object from the room type with pk.
+
+    7- RoomAllListAPIView  --> get list of all room in hotel.
+    8- RoomDetailView --> Get information of a specific type of room.
+    9- RoomCreateAPIView --> api to create an object from the room.
+    10- RoomDeleteView --> delete an object from the room with pk
+    11- RoomUpdateView  --> update information an object from the room with pk.
+    
+    12- ReservationRoomAPIView --> Book a room for a few nights
+    13- ReservationAllListAPIView --> Get list of all reservations in hotel.
+    14- UserPaymentAPIView --> Get the list of all the user's reservations in the hotel.
+
+"""
+#--------------------------------------------------------
 class RoomTypeAllListAPIView(ListAPIView):
+    """get a list of all types of hotel rooms.(domain.com/..../rooms/type/)"""
     queryset = RoomType.objects.all()
     serializer_class = RoomTypeSerializer
-# -------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------
 class RoomTypeDetailView(RetrieveAPIView):
+    """Get information of a specific type of room.(domain.com/..../rooms/type/<int:pk>/)"""
     queryset = RoomType.objects.all()
     serializer_class = RoomTypeSerializer
     lookup_field = 'pk'
-# -------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------
 class RoomTypeCreateAPIView(APIView):
     """
+        api to create an object from the room type.(domain.com/..../rooms/type/create/)"
         {
             "type": "o",
             "bed_count": 2,
@@ -37,28 +60,46 @@ class RoomTypeCreateAPIView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# -------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------
 class RoomTypeDeleteView(DestroyAPIView):
+    """delete an object from the room type with pk.(domain.com/..../rooms/type/delete/<int:pk>/)"""
     queryset = RoomType.objects.all()
     serializer_class = RoomTypeSerializer
     lookup_field = 'pk'
-# -------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------
 class RoomTypeUpdateView(UpdateAPIView):
+    """update information an object from the room type with pk.(domain.com/..../rooms/type/update/<int:pk>/)"""
     queryset = RoomType.objects.all()
     serializer_class = RoomTypeSerializer
     lookup_field = 'pk'
-# -------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------
+class RoomTypeImageUpdateView(APIView):
+    """update image of an object from the room type with pk.(domain.com/..../rooms/type/update/image/<int:pk>/)"""
+    def put(self, request,pk):
+        try:
+            user = RoomType.objects.get(pk=pk)
+        except RoomType.DoesNotExist:
+            return Response({'message':'RoomType not found.'},status=status.HTTP_404_NOT_FOUND) 
+        serializer = RoomTypeImageSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message':'image updated.'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#--------------------------------------------------------
 class RoomAllListAPIView(ListAPIView):
+    """get list of all room in hotel.(domain.com/..../rooms/)"""
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
-# -------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------
 class RoomDetailView(RetrieveAPIView):
+    """Get information of a specific type of room.(domain.com/..../rooms/<int:pk>/)"""
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
     lookup_field = 'pk'
-# -------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------
 class RoomCreateAPIView(APIView):
     """
+        api to create an object from the room.(domain.com/..../rooms/create/)"
         {
             "type": 1,
             "number": 2
@@ -82,13 +123,15 @@ class RoomCreateAPIView(APIView):
             return Response({'message': 'room created.','data' : f"room id: {room.id}"}, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-# -------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------
 class RoomDeleteView(DestroyAPIView):
+    """delete an object from the room with pk.(domain.com/..../rooms/delete/<int:pk>/)"""
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
     lookup_field = 'pk'
-# -------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------
 class RoomUpdateView(UpdateAPIView):
+    """update information an object from the room with pk.(domain.com/..../rooms/update/<int:pk>/)"""
     queryset = Room.objects.all()
     serializer_class = RoomCreateSerializer
     lookup_field = 'pk'
@@ -115,10 +158,11 @@ class RoomUpdateView(UpdateAPIView):
             return Response({'message': 'room updated.', 'data': f"room id: {room.id}"}, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-# -------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------
 class ReservationRoomAPIView(APIView):
     permission_classes = [IsAuthenticated]
     """
+        Book a room for a few nights(domain.com/..../rooms/reservation/)
         {
             "room_type_id": 2,
             "nights": 4,
@@ -137,7 +181,7 @@ class ReservationRoomAPIView(APIView):
             room_available = room_type.rooms.filter(has_Resev=False)
 
             if(room_available.count() == 0):
-                return Response({'message': 'not found free room.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': 'Room reserved successfully.'}, status=status.HTTP_400_BAD_REQUEST)
 
             reservation_room = room_available[0]
 
@@ -152,17 +196,19 @@ class ReservationRoomAPIView(APIView):
             reservation_room.has_Resev = True
             reservation_room.save()
             
-            return Response({'message': 'room has reserved.'}, status=status.HTTP_201_CREATED)
+            return Response({'message': 'Room reserved successfully.'}, status=status.HTTP_201_CREATED)
             
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-# -------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------
 class ReservationAllListAPIView(ListAPIView):
+    """Get list of all reservations in hotel.(domain.com/..../rooms/reservation/all/)"""
     queryset =  RoomReservation.objects.all()
     serializer_class =  ReservationListSerializer
-# -------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------
 class UserPaymentAPIView(APIView):
-    # permission_classes = [IsAuthenticated]
+    """Get the list of all the user's reservations in the hotel.(domain.com/..../rooms/reservation/user/)"""
+    permission_classes = [IsAuthenticated]
     serializer_class = ReservationListSerializer
     """
         get payment for user
@@ -172,16 +218,4 @@ class UserPaymentAPIView(APIView):
         payments = ReservationListSerializer(payments_objects,many = True)
 
         return Response({'payments': payments.data}, status=status.HTTP_200_OK)
-# -------------------------------------------------------------------------------------------------------------------------------
-class RoomTypeImageUpdateView(APIView):
-    def put(self, request,pk):
-        try:
-            user = RoomType.objects.get(pk=pk)
-        except RoomType.DoesNotExist:
-            return Response({'message':'RoomType not found.'},status=status.HTTP_404_NOT_FOUND) 
-        serializer = RoomTypeImageSerializer(user, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'message':'image updated.'}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-# -------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------

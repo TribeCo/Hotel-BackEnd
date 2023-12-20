@@ -8,8 +8,12 @@ from django.db.models import Sum, F
 from datetime import date, timedelta
 from food.models import *
 from rooms.models import *
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class FoodSalesReportAPIView(APIView):
+    """
+        GET food sales information in year,month and day.
+        urls: domain.com/..../reports/food/
+    """
     def get(self, request):
         today = date.today()
         one_year_ago = today - timedelta(days=365)
@@ -44,8 +48,12 @@ class FoodSalesReportAPIView(APIView):
         }
 
         return Response(report_data)
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class RoomReservationReportAPIView(APIView):
+    """
+        GET room reservation information in year,month and day.
+        urls: domain.com/..../reports/room/
+    """
     def get(self, request):
         today = date.today()
         one_year_ago = today - timedelta(days=365)
@@ -88,8 +96,12 @@ class RoomReservationReportAPIView(APIView):
         }
 
         return Response(report_data)
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class AllReportAPIView(APIView):
+    """
+        GET room reservation and food sales information in year,month and day.
+        urls: domain.com/..../reports/all/
+    """
     def get(self, request):
         food_sales_report = FoodSalesReportAPIView()
         room_reservation_report = RoomReservationReportAPIView()
@@ -104,4 +116,4 @@ class AllReportAPIView(APIView):
         }
 
         return Response(report_data)
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------

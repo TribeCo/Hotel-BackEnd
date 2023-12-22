@@ -1,6 +1,8 @@
+import numbers
 from django.db import models
 from accounts.models import User
 from config.utils import jalali_create
+from django.db.models import Max
 #--------------------------------------------------------
 class RoomType(models.Model):
     """
@@ -17,6 +19,7 @@ class RoomType(models.Model):
     features = models.TextField()
     price_one_night = models.IntegerField()
     image = models.ImageField(upload_to='rooms/',default ='rooms/image.jpg')
+    number = models.IntegerField(blank=True, null=True)
 
     code = models.IntegerField(blank=True,null=True)
 
@@ -30,6 +33,13 @@ class RoomType(models.Model):
 
     def n_night(self,n):
         return n * self.price_one_night
+
+    def save(self, *args, **kwargs):
+        if not self.number:
+            if self.pk is None:  # Object is being created
+                max_id = RoomType.objects.aggregate(Max('id'))['id__max']
+                self.number = max_id + 1 if max_id else 1
+        super().save(*args, **kwargs)
 #--------------------------------------------------------
 class Room(models.Model):
     number = models.IntegerField(unique=True)

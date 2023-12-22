@@ -6,6 +6,8 @@ from rest_framework import status
 from datetime import datetime
 from .serializers import RoomTypeSerializer,RoomSerializer,ReservationListSerializer,RoomCreateSerializer,RoomTypeImageSerializer,ReservationSerializer
 from .models import RoomType,Room,RoomReservation
+from datetime import date, timedelta
+from django.db.models import Q
 #--------------------------------------------------------
 """
     Food reservation and food CRUD are coded in this app.
@@ -166,8 +168,7 @@ class ReservationRoomAPIView(APIView):
         {
             "room_type_id": 2,
             "nights": 4,
-            "check_in": "2023-12-01 14:00:00",
-            "check_out": "2023-12-03 12:00:00"
+            "check_in": "2023-12-01 14:00:00"
         }
     """
     def post(self, request):
@@ -176,7 +177,6 @@ class ReservationRoomAPIView(APIView):
         if serializer.is_valid():
             room_type_id = int(serializer.validated_data["room_type_id"])
             check_in = datetime.strptime(serializer.validated_data["check_in"], "%Y-%m-%d %H:%M:%S")
-            check_out = datetime.strptime(serializer.validated_data["check_out"], "%Y-%m-%d %H:%M:%S")
             room_type = RoomType.objects.get(id=room_type_id)
             room_available = room_type.rooms.filter(has_Resev=False)
 
@@ -190,7 +190,6 @@ class ReservationRoomAPIView(APIView):
                 user=request.user,
                 night_count=serializer.validated_data["nights"],
                 check_in=check_in,
-                check_out=check_out
             )
             new_reservation.save()
             reservation_room.has_Resev = True
@@ -218,4 +217,26 @@ class UserPaymentAPIView(APIView):
         payments = ReservationListSerializer(payments_objects,many = True)
 
         return Response({'payments': payments.data}, status=status.HTTP_200_OK)
+#--------------------------------------------------------
+class OccupiedDaysNext30DaysView(APIView):
+    def get(self, request, pk):
+        today = date.today()
+        end_date = today + timedelta(days=30)
+
+        room = Room.objects.get(id=pk)
+        occupied_days = room.reservations.filter(
+            Q(check_in__lte=today, check_in__gte=end_date) |  # Reservation starts before or on today and ends on or after end_date
+            Q(check_in__gte=today, check_in__lte=end_date)  # Reservation starts and ends within the next 30 days
+        ).values_list('check_in','night_count')
+
+        occupied_days_list = []
+        for occupied in occupied_days:
+            current_date = occupied[0]
+            count = occupied[1]
+            while count > 0:
+                occupied_days_list.append(current_date)
+                current_date += timedelta(days=1)
+                count -= 1
+
+        return Response(occupied_days_list)
 #--------------------------------------------------------

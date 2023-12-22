@@ -3,6 +3,7 @@ from django.db import models
 from accounts.models import User
 from config.utils import jalali_create
 from django.db.models import Max
+from datetime import timedelta
 #--------------------------------------------------------
 class RoomType(models.Model):
     """
@@ -56,8 +57,7 @@ class RoomReservation(models.Model):
     night_count = models.IntegerField()
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    check_in = models.DateTimeField()
-    check_out = models.DateTimeField()
+    check_in = models.DateField()
     paid = models.BooleanField(default=False)
     been_paid = models.IntegerField(default=0)
 
@@ -73,8 +73,11 @@ class RoomReservation(models.Model):
         return self.price() - self.been_paid
 
     def shamsi_date(self):
-        temp = jalali_create(self.check_out)
+        temp = jalali_create(self.check_in)
         return f"{temp[0]}-{temp[1]}-{temp[2]}"
+
+    def end_date(self):
+        return self.check_in + timedelta(days=self.night_count)
 
     def payed(self):
         self.paid = True

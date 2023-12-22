@@ -1,7 +1,7 @@
 from django.db import models
 from accounts.models import User
 from config.utils import jalali_create,persion_converter_number
-# ----------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------
 class Food(models.Model):
     """The Food model defines a database table for storing food items."""
     meal_choice = (
@@ -31,10 +31,7 @@ class Food(models.Model):
         """Date of serving food in Shamsi"""
         temp = jalali_create(self.day)
         return f"{temp[0]}-{temp[1]}-{temp[2]}"
-
-    
-
-# ----------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------
 class FoodReservation(models.Model):
     """The FoodReservation model represents a reservation made by a user for a specific food item."""
     food = models.ForeignKey(Food,on_delete=models.CASCADE,related_name="reservations")
@@ -42,6 +39,8 @@ class FoodReservation(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     paid = models.BooleanField(default=False)
     been_paid = models.IntegerField(default=0)
+    delivery = models.BooleanField(default=False)
+
 
     def __str__(self):
         return str(self.food) + "-" + str(self.user.email) + "-" + str(self.created)
@@ -62,6 +61,4 @@ class FoodReservation(models.Model):
         self.paid = True
         self.been_paid = self.price()
         self.save()
-
-
-# ----------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------

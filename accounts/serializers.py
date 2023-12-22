@@ -50,12 +50,9 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 class UpdateRoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = [ 'role','firstName', 'lastName', 'password']
+        fields = [ 'role']
     
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation.pop('password', None)
-        return representation
+    
 #-----------------------------------------------------------
 class CodeValidationSerializers(serializers.ModelSerializer):
     email = serializers.CharField()

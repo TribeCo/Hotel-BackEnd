@@ -72,9 +72,9 @@ class RoomReservation(models.Model):
     def remaining(self):
         return self.price() - self.been_paid
 
-    def shamsi_date(self):
-        temp = jalali_create(self.check_in)
-        return f"{temp[0]}-{temp[1]}-{temp[2]}"
+    # def shamsi_date(self):
+    #     temp = jalali_create(self.check_in)
+    #     return f"{temp[0]}-{temp[1]}-{temp[2]}"
 
     def end_date(self):
         return self.check_in + timedelta(days=self.night_count)

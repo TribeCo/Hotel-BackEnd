@@ -110,6 +110,7 @@ class RoomCommentCreateSerializer(serializers.ModelSerializer):
 #-----------------------------------------------------------
 class CommentSerializer(serializers.ModelSerializer):
     user = UserSerializer(required=False)
+    text = serializers.CharField(required=False)
     class Meta:
         model = Comment
         fields = "__all__"

@@ -36,7 +36,7 @@ class FoodReservation(models.Model):
     """The FoodReservation model represents a reservation made by a user for a specific food item."""
     food = models.ForeignKey(Food,on_delete=models.CASCADE,related_name="reservations")
     user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="food_reservations")
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateField(auto_now_add=True)
     paid = models.BooleanField(default=False)
     been_paid = models.IntegerField(default=0)
     delivery = models.BooleanField(default=False)

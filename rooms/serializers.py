@@ -7,7 +7,7 @@ class RoomTypeSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(many=True,required=False)
     class Meta:
         model = RoomType
-        fields = ('id', 'type', 'bed_count', 'features', 'price_one_night', 'code','image','comments')
+        fields = ('id', 'type', 'bed_count', 'description', 'price_one_night', 'code','image','comments')
 #-----------------------------------------------------------
 class ReservationSerializer(serializers.ModelSerializer):
     check_in = serializers.CharField()

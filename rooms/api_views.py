@@ -49,7 +49,7 @@ class RoomTypeCreateAPIView(APIView):
         {
             "type": "o",
             "bed_count": 2,
-            "features": "description about features.",
+            "description": "description about description.",
             "price_one_night": 2000
         }
     """

@@ -54,8 +54,10 @@ class FoodReservation(models.Model):
 
     def shamsi_date(self):
         """Date of serving food in Shamsi"""
-        temp = jalali_create(self.created)
-        return f"{temp[0]}-{temp[1]}-{temp[2]}"
+        # temp = jalali_create(self.created)
+        # return f"{temp[0]}-{temp[1]}-{temp[2]}"
+        return self.created
+        
 
     def payed(self):
         self.paid = True

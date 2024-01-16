@@ -26,11 +26,7 @@ class RoomType(models.Model):
 
 
     def __str__(self):
-        return str(self.type) + "-" + str(self.bed_count)
-
-    def __str__(self):
-        if(self.type == 'o'): return f"تخته {str(self.bed_count)}"
-        return f" {str(self.bed_count)} تخته"
+        return str(self.id) + "-" + str(self.bed_count)
 
     def n_night(self,n):
         return n * self.price_one_night

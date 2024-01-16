@@ -177,11 +177,14 @@ class ReservationRoomAPIView(APIView):
         if serializer.is_valid():
             room_type_id = int(serializer.validated_data["room_type_id"])
             check_in = datetime.strptime(serializer.validated_data["check_in"], "%Y-%m-%d %H:%M:%S")
-            room_type = RoomType.objects.get(id=room_type_id)
+            try:
+                room_type = RoomType.objects.get(id=room_type_id)
+            except RoomType.DoesNotExist:
+                return Response({'message': 'room type does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
             room_available = room_type.rooms.filter(has_Resev=False)
 
             if(room_available.count() == 0):
-                return Response({'message': 'Room reserved successfully.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': 'room is not available.'}, status=status.HTTP_400_BAD_REQUEST)
 
             reservation_room = room_available[0]
 
@@ -192,7 +195,7 @@ class ReservationRoomAPIView(APIView):
                 check_in=check_in,
             )
             new_reservation.save()
-            reservation_room.has_Resev = True
+            # reservation_room.has_Resev = True
             reservation_room.save()
             
             return Response({'message': 'Room reserved successfully.'}, status=status.HTTP_201_CREATED)
@@ -223,7 +226,7 @@ class OccupiedDaysNext30DaysView(APIView):
         today = date.today()
         end_date = today + timedelta(days=30)
 
-        room = Room.objects.get(id=pk)
+        room = Room.objects.get(number=pk)
         occupied_days = room.reservations.filter(
             Q(check_in__lte=today, check_in__gte=end_date) |  # Reservation starts before or on today and ends on or after end_date
             Q(check_in__gte=today, check_in__lte=end_date)  # Reservation starts and ends within the next 30 days

@@ -90,7 +90,7 @@ class ContactUs(models.Model):
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
     text = models.TextField()
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateField(auto_now_add=True)
     valid = models.BooleanField(default=False)
     rating = models.FloatField(default=0, validators=[MaxValueValidator(5), MinValueValidator(0)])
 

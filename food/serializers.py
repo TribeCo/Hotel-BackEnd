@@ -3,11 +3,11 @@ from accounts.serializers import CommentSerializer
 from .models import *
 #-----------------------------------------------------------
 class FoodSerializer(serializers.ModelSerializer):
-    date = serializers.CharField(source='shamsi_date')
+    date = serializers.CharField(source='shamsi_date',required=False)
     comments = CommentSerializer(many=True,required=False)
     class Meta:
         model = Food
-        fields = ('price', 'name', 'meal', 'type', 'count','day','id','date','image','comments')
+        fields = ('price', 'name', 'description', 'count','day','id','date','image','comments')
 #-----------------------------------------------------------
 class UserSerializerForFood(serializers.ModelSerializer):
     class Meta:
@@ -31,9 +31,10 @@ class DeliveryListSerializer(serializers.ModelSerializer):
 #-----------------------------------------------------------
 class FoodReservationSerializer(serializers.ModelSerializer):
     food_id = serializers.IntegerField()
+    meal = serializers.CharField()
     class Meta:
         model = Food
-        fields = ('food_id',)
+        fields = ('food_id','meal')
 #-----------------------------------------------------------
 class FoodImageSerializer(serializers.ModelSerializer):
     class Meta:

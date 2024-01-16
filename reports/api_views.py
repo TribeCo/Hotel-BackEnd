@@ -34,7 +34,7 @@ class FoodSalesReportAPIView(APIView):
         
 
         # last day
-        daily_sales = sales_queryset.filter(created__date=one_day_ago)
+        daily_sales = sales_queryset.filter(created__gte=one_day_ago)
         total_daily_sales = daily_sales.aggregate(total_sales=Sum('food__price'))['total_sales'] or 0
         total_daily_count = daily_sales.aggregate(total_count=Sum('food__reserved'))['total_count'] or 0
 
@@ -76,7 +76,7 @@ class RoomReservationReportAPIView(APIView):
         
 
         # last day
-        daily_reservation = reservation_queryset.filter(created__date=one_day_ago)
+        daily_reservation = reservation_queryset.filter(created__gte=one_day_ago)
         total_daily_reservation = daily_reservation.aggregate(total_reservation=Sum(F('night_count') * F('room__type__price_one_night')))['total_reservation'] or 0
         total_daily_count = daily_reservation.count()
         total_daily_person = daily_reservation.aggregate(total_person=Sum('room__type__bed_count'))['total_person'] or 0

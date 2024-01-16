@@ -1,5 +1,5 @@
 from rest_framework.permissions import BasePermission
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class IsHotelManager(BasePermission):
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
@@ -9,7 +9,7 @@ class IsHotelManager(BasePermission):
             return True
 
         return False
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class IsDeputy(BasePermission):
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
@@ -19,7 +19,7 @@ class IsDeputy(BasePermission):
             return True
 
         return False
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class IsAssentManager(BasePermission):
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
@@ -29,7 +29,7 @@ class IsAssentManager(BasePermission):
             return True
 
         return False
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class IsRestaurantManager(BasePermission):
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
@@ -39,7 +39,7 @@ class IsRestaurantManager(BasePermission):
             return True
 
         return False
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 class IsManager(BasePermission):
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
@@ -49,5 +49,5 @@ class IsManager(BasePermission):
             return True
 
         return False
-# -------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 

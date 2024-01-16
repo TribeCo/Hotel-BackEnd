@@ -6,6 +6,7 @@ from rest_framework.generics import ListAPIView,DestroyAPIView,RetrieveAPIView,U
 from .serializers import *
 from rest_framework.permissions import IsAuthenticated
 from .models import Food
+from django.utils import timezone
 #-----------------------------------------------------------
 """
     Food reservation and food CRUD are coded in this app.
@@ -31,8 +32,7 @@ class FoodCreateAPIView(APIView):
         {
             "price": 2000,
             "name": "Pizza",
-            "meal": "n", --> night
-            "type": "text",
+            "description": "text",
             "count": 200
         }
     """
@@ -73,7 +73,8 @@ class ReservationRoomAPIView(APIView):
     """
         Reserve a food
         {
-            "food_id": 2
+            "food_id": 2,
+            "meal" : "n"
         }
     """
     def post(self, request):
@@ -81,6 +82,7 @@ class ReservationRoomAPIView(APIView):
 
         if serializer.is_valid():
             food_id = int(serializer.validated_data["food_id"])
+
             food = Food.objects.get(id=food_id)
 
             if(food.remain() > 0):
@@ -88,6 +90,7 @@ class ReservationRoomAPIView(APIView):
                 new_reservation = FoodReservation(
                     food=food,
                     user=request.user,
+                    meal=serializer.validated_data["meal"]
                 )
                 new_reservation.save()
                 food.reserved = food.reserved + 1
@@ -102,8 +105,11 @@ class ReservationRoomAPIView(APIView):
 #-----------------------------------------------------------
 class ReservationAllListAPIView(ListAPIView):
     """List of all Reserves"""
-    queryset =  FoodReservation.objects.all()
     serializer_class =  FoodReservationListSerializer
+
+    def get_queryset(self):
+        today = timezone.now().date()
+        return FoodReservation.objects.filter(created=today)
 #-----------------------------------------------------------
 class UserFoodPaymentAPIView(APIView):
     permission_classes = [IsAuthenticated]

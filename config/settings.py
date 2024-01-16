@@ -51,6 +51,7 @@ INSTALLED_APPS += [
     'rooms.apps.RoomsConfig',
     'food.apps.FoodConfig',
     'reports.apps.ReportsConfig',
+    'files',
 ]
 
 

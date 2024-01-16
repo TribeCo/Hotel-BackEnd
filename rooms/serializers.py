@@ -7,7 +7,7 @@ class RoomTypeSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(many=True,required=False)
     class Meta:
         model = RoomType
-        fields = ('id', 'type', 'bed_count', 'features', 'price_one_night', 'code','image','comments')
+        fields = ('id', 'type', 'bed_count', 'description', 'price_one_night', 'code','image','comments')
 #-----------------------------------------------------------
 class ReservationSerializer(serializers.ModelSerializer):
     check_in = serializers.CharField()
@@ -39,10 +39,9 @@ class ReservationListSerializer(serializers.ModelSerializer):
     room = RoomSerializer()
     remain_paid = serializers.IntegerField(source='remaining')
     total_price = serializers.IntegerField(source='price')
-    date = serializers.CharField(source='shamsi_date')
     class Meta:
         model = RoomReservation
-        fields = ('room','user','night_count','created','updated','check_in','paid','been_paid','remain_paid','total_price','date')
+        fields = ('room','user','night_count','created','updated','check_in','paid','been_paid','remain_paid','total_price')
 #-----------------------------------------------------------
 class RoomTypeImageSerializer(serializers.ModelSerializer):
     class Meta:

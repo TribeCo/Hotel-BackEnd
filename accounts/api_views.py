@@ -1,4 +1,5 @@
 
+from email import message
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth.hashers import make_password
 from django.utils.decorators import method_decorator
@@ -17,6 +18,24 @@ from .utils import send_code_mail,send_mail
 from food.models import Food
 from .serializers import *
 from .permissions import *
+#-----------------------------------------------------------
+messages_for_front = {
+    'csrf_set' : 'اعتبارسنجی شد.',
+    'national_duplicated' : 'کد ملی تکراری است.',
+    'email_duplicated' : 'ایمیل تکراری است.',
+    'user_create' : 'کاربر ساخته شد و کد اعتبارسنجی ارسال شد.',
+    'user_not_found' : 'کاربر پیدا نشد.',
+    'image_updated' : 'عکس پروفایل اپدیت شد.',
+    'code_sent' : 'کد ارسال شد.',
+    'password_changed' : 'پسورد با موفقیت تغییر کرد.',
+    'wrong_coode' : 'کد اعتبارسنجی نامعتبر است.',
+    'right_code' : 'کد اعتبارسنجی صحیح است.',
+    'employee_create' : 'اکانت کارمند با موفقیت ساخته شد.',
+    'sent_to_admin' : 'برای ادمین ارسال شد.',
+    'room_not_found' : 'اتاق پیدا نشد.',
+    'food_not_found' : 'غذا پیدا نشد.',
+    'comment_create' : 'کامنت با موفقیت ایجاد شد.',
+}
 #-----------------------------------------------------------
 """
     api's in api_views.py :
@@ -60,7 +79,7 @@ class get_csrf_token(APIView):
     permission_classes = (permissions.AllowAny, )
 
     def get(self, request, format=None):
-        return Response({'success': "CSRF cookie set"})
+        return Response({'success': messages_for_front['csrf_set']})
 #-----------------------------------------------------------
 class UserCreateView(APIView):
     def post(self, request):
@@ -85,11 +104,11 @@ class UserCreateView(APIView):
         if info.is_valid():
             # Check if the nationalCode is duplicated
             if User.objects.filter(nationalCode=info.validated_data['nationalCode']).exists():
-                return Response({'message': 'The national code is duplicated.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': messages_for_front['national_duplicated']}, status=status.HTTP_400_BAD_REQUEST)
 
             # Check if the email is duplicated
             if User.objects.filter(email=info.validated_data['email']).exists():
-                return Response({'message': 'The email is duplicated.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': messages_for_front['email_duplicated']}, status=status.HTTP_400_BAD_REQUEST)
 
             User(nationalCode=info.validated_data['nationalCode'],
                  email=info.validated_data['email'],
@@ -105,7 +124,7 @@ class UserCreateView(APIView):
             # send Code to User
             send_code_mail(info.validated_data['email'], code)
 
-            return Response({'message': 'User was created and code sent.'}, status=status.HTTP_201_CREATED)
+            return Response({'message': messages_for_front['user_create']}, status=status.HTTP_201_CREATED)
         else:
             return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 #-----------------------------------------------------------
@@ -146,7 +165,7 @@ class UserDetailPKView(APIView):
             serializer = UserDetailSerializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except User.DoesNotExist:
-            return Response({'detail': 'user not found.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': messages_for_front['user_not_found']}, status=status.HTTP_404_NOT_FOUND)
 #-----------------------------------------------------------
 class UserDetailView(APIView):
     """
@@ -160,7 +179,7 @@ class UserDetailView(APIView):
             serializer = UserDetailSerializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except User.DoesNotExist:
-            return Response({'detail': 'user not found.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': messages_for_front['user_not_found']}, status=status.HTTP_404_NOT_FOUND)
 #-----------------------------------------------------------
 class ProfileImageUpdateView(APIView):
     """
@@ -171,11 +190,11 @@ class ProfileImageUpdateView(APIView):
         try:
             user = User.objects.get(pk=pk)
         except User.DoesNotExist:
-            return Response({'message':'user not found.'},status=status.HTTP_404_NOT_FOUND) 
+            return Response({'message': messages_for_front['user_not_found']},status=status.HTTP_404_NOT_FOUND) 
         serializer = UserImageSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({'message':'image updated.','link':f"https://hotelback.iran.liara.run{user.image.url}"}, status=status.HTTP_200_OK)
+            return Response({'message': messages_for_front['image_updated'],'link':f"https://hotelback.iran.liara.run{user.image.url}"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 #-----------------------------------------------------------
 class PasswordChangeRequest(APIView):
@@ -204,7 +223,7 @@ class PasswordChangeRequest(APIView):
             # send Code to User
             send_code_mail(info.validated_data['email'], code)
             
-            return Response({'message': 'code sent.'}, status=status.HTTP_201_CREATED)
+            return Response({'message': messages_for_front['code_sent']}, status=status.HTTP_201_CREATED)
         else:
             return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 #-----------------------------------------------------------
@@ -233,9 +252,9 @@ class ChangePassword(APIView):
                     user.code = randint(1000, 9999)
                     user.save()
 
-                    return Response({'message': 'password changed.'}, status=status.HTTP_200_OK)
+                    return Response({'message': messages_for_front['password_changed']}, status=status.HTTP_200_OK)
                 else:
-                    return Response({'message': 'wrong code!'}, status=status.HTTP_401_UNAUTHORIZED)
+                    return Response({'message': messages_for_front['wrong_coode']}, status=status.HTTP_401_UNAUTHORIZED)
             return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -261,8 +280,8 @@ def code_validation(request):
             
             user.is_active = True
             user.save()
-            return Response({'message': 'code is right.'}, status=status.HTTP_200_OK)
-        return Response({'message': 'wrong code!'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'message': messages_for_front['right_code']}, status=status.HTTP_200_OK)
+        return Response({'message': messages_for_front['wrong_coode']}, status=status.HTTP_401_UNAUTHORIZED)
     else:
         return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 #-----------------------------------------------------------
@@ -287,7 +306,7 @@ class DashboardView(APIView):
                 serializer = UserDetailSerializer(user)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             except User.DoesNotExist:
-                return Response({'detail': 'user not found.'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'detail': messages_for_front['user_not_found']}, status=status.HTTP_404_NOT_FOUND)
         return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 #-----------------------------------------------------------
 class EmployeeListView(APIView):
@@ -325,11 +344,11 @@ class EmployeeCreateView(APIView):
         if info.is_valid():
             # Check if the nationalCode is duplicated
             if User.objects.filter(nationalCode=info.validated_data['nationalCode']).exists():
-                return Response({'message': 'The national code is duplicated.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': messages_for_front['national_duplicated']}, status=status.HTTP_400_BAD_REQUEST)
 
             # Check if the email is duplicated
             if User.objects.filter(email=info.validated_data['email']).exists():
-                return Response({'message': 'The email is duplicated.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': messages_for_front['email_duplicated']}, status=status.HTTP_400_BAD_REQUEST)
 
             
 
@@ -348,7 +367,7 @@ class EmployeeCreateView(APIView):
             user.save()
 
 
-            return Response({'message': 'employee was created.'}, status=status.HTTP_201_CREATED)
+            return Response({'message': messages_for_front['employee_create']}, status=status.HTTP_201_CREATED)
         else:
             return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
 #-----------------------------------------------------------
@@ -387,7 +406,7 @@ class ContactUs(APIView):
            info.save()
            send_mail(info.validated_data['name'],info.validated_data['subject'],info.validated_data['text'],info.validated_data['email'])
 
-           return Response({'message': 'send to admin.'}, status=status.HTTP_201_CREATED) 
+           return Response({'message': messages_for_front['sent_to_admin']}, status=status.HTTP_201_CREATED) 
 
         else:
             return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -413,12 +432,12 @@ class RoomCommentCreateView(APIView):
             try:
                 user = User.objects.get(id=info.validated_data['user_id'])
             except User.DoesNotExist:
-                return Response({'message': 'user not found.'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'message': messages_for_front['user_not_found']}, status=status.HTTP_404_NOT_FOUND)
 
             try:
                 room = RoomType.objects.get(id=info.validated_data['room_id'])
             except RoomType.DoesNotExist:
-                return Response({'message': 'room not found.'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'message': messages_for_front['room_not_found']}, status=status.HTTP_404_NOT_FOUND)
 
             
             room_cm = RoomComment(
@@ -429,7 +448,7 @@ class RoomCommentCreateView(APIView):
             )
             room_cm.save()
 
-            return Response({'message': 'comment was created.'}, status=status.HTTP_201_CREATED)
+            return Response({'message': messages_for_front['comment_create']}, status=status.HTTP_201_CREATED)
         else:
             return Response(info.errors, status=status.HTTP_400_BAD_REQUEST)    
 #-----------------------------------------------------------
@@ -453,12 +472,12 @@ class FoodCommentCreateView(APIView):
             try:
                 user = User.objects.get(id=info.validated_data['user_id'])
             except User.DoesNotExist:
-                return Response({'message': 'user not found.'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'message': messages_for_front['user_not_found']}, status=status.HTTP_404_NOT_FOUND)
 
             try:
                 food = Food.objects.get(id=info.validated_data['food_id'])
             except Food.DoesNotExist:
-                return Response({'message': 'food not found.'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'message': messages_for_front['food_not_found']}, status=status.HTTP_404_NOT_FOUND)
 
             
             food_cm = FoodComment(
@@ -469,7 +488,7 @@ class FoodCommentCreateView(APIView):
             )
             food_cm.save()
 
-            return Response({'message': 'comment was created.'}, status=status.HTTP_201_CREATED)
+            return Response({'message': messages_for_front['comment_create']}, status=status.HTTP_201_CREATED)
         else:
             return Response(info.errors, status=status.HTTP_400_BAD_REQUEST) 
 #-----------------------------------------------------------

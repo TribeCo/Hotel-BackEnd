@@ -60,7 +60,7 @@ class RoomReservation(models.Model):
 
 
     def __str__(self):
-        return str(self.room) + "-" + str(self.user) + "-" + str(self.created)
+        return str(self.room) + "-" + str(self.user) + "-" + str(self.check_in)
 
     def price(self):
         return self.night_count * self.room.type.price_one_night

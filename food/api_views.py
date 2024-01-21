@@ -26,6 +26,15 @@ from django.utils import timezone
 
 """
 #-----------------------------------------------------------
+messages_for_front = {
+    'food_created' : 'غذا اضافه شد.',
+    'food_reserved' : 'غذا رزرو شد.',
+    'food_is_over' : 'موجودی غذا تمام شده است.',
+    'food_not_found' : 'غذا پیدا نشد.',
+    'image_updated' : 'عکس اپدیت شد.',
+    'food_reservation_updated' : 'رزرو غذا اپدیت شد.',
+}
+#-----------------------------------------------------------
 class FoodCreateAPIView(APIView):
     """
         create a food
@@ -41,7 +50,7 @@ class FoodCreateAPIView(APIView):
 
         if serializer.is_valid():
             serializer.save()
-            return Response({'message': 'food created.','data' : serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({'message': messages_for_front['food_created'],'data' : serializer.data}, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 #-----------------------------------------------------------
@@ -83,7 +92,10 @@ class ReservationRoomAPIView(APIView):
         if serializer.is_valid():
             food_id = int(serializer.validated_data["food_id"])
 
-            food = Food.objects.get(id=food_id)
+            try:
+                food = Food.objects.get(pk=food_id)
+            except Food.DoesNotExist:
+                return Response({'message': messages_for_front['food_not_found']},status=status.HTTP_404_NOT_FOUND) 
 
             if(food.remain() > 0):
                 
@@ -96,9 +108,9 @@ class ReservationRoomAPIView(APIView):
                 food.reserved = food.reserved + 1
                 food.save()
                 
-                return Response({'message': 'food has reserved.'}, status=status.HTTP_201_CREATED)
+                return Response({'message': messages_for_front['food_reserved']}, status=status.HTTP_201_CREATED)
             else:
-                return Response({'message': 'food is over.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': messages_for_front['food_is_over']}, status=status.HTTP_400_BAD_REQUEST)
             
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -124,13 +136,13 @@ class FoodImageUpdateView(APIView):
     """Updating food photos"""
     def put(self, request,pk):
         try:
-            user = Food.objects.get(pk=pk)
+            food = Food.objects.get(pk=pk)
         except Food.DoesNotExist:
-            return Response({'message':'food not found.'},status=status.HTTP_404_NOT_FOUND) 
-        serializer = FoodImageSerializer(user, data=request.data, partial=True)
+            return Response({'message': messages_for_front['food_not_found']},status=status.HTTP_404_NOT_FOUND) 
+        serializer = FoodImageSerializer(food, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({'message':'image updated.'}, status=status.HTTP_200_OK)
+            return Response({'message':messages_for_front['image_updated']}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 #-----------------------------------------------------------
 class DeliveryChangeView(APIView):
@@ -139,11 +151,11 @@ class DeliveryChangeView(APIView):
         try:
             food_rerv = FoodReservation.objects.get(pk=pk)
         except Food.FoodReservation:
-            return Response({'message':'food not found.'},status=status.HTTP_404_NOT_FOUND) 
+            return Response({'message': messages_for_front['food_not_found']},status=status.HTTP_404_NOT_FOUND) 
         serializer = DeliveryListSerializer(data=request.data)
         if serializer.is_valid():
             food_rerv.delivery = serializer.validated_data['delivery']
             food_rerv.save()
-            return Response({'message':'food reservation updated.'}, status=status.HTTP_200_OK)
+            return Response({'message': messages_for_front['food_reservation_updated']}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 #-----------------------------------------------------------

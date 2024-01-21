@@ -283,3 +283,70 @@ class DayChartAPIView(APIView):
 
         return Response(report_data)
 #-----------------------------------------------------------
+from django.db.models import Count
+
+class FoodSalesChartAPIView(APIView):
+    """
+    GET food sales information in year, month, and day.
+    urls: domain.com/..../reports/food/
+    """
+
+    def get(self, request):
+        today = JalaliDate.today()
+        tyear = today.year
+        tmonth = today.month
+        tday = today.day
+
+
+
+        sales_queryset = FoodReservation.objects.filter(paid=True)
+
+        # Top 4 best-selling foods for each year
+        jalali_start_date = JalaliDate(tyear, 1, 1)
+        jalali_end_date = JalaliDate(tyear, 12, 29)
+
+        start_date = jalali_start_date.to_gregorian()
+        end_date = jalali_end_date.to_gregorian() + timedelta(days=1)
+
+        yearly_reservation = sales_queryset.filter(created__range=(start_date, end_date))
+        top_selling_foods = yearly_reservation.values('food__name').annotate(sales_count=Count('food')).order_by('-sales_count')[:4]
+
+        top_selling_foods_by_year = {}
+        top_selling_foods_by_year[tyear] = list(top_selling_foods)
+
+        # Top 4 best-selling foods for each year and month
+        jalali_start_date = JalaliDate(tyear, tmonth, 1)
+        jalali_end_date = JalaliDate(tyear, tmonth, 29)
+
+        start_date = jalali_start_date.to_gregorian()
+        end_date = jalali_end_date.to_gregorian() + timedelta(days=1)
+
+        month_sales_queryset = sales_queryset.filter(created__range=(start_date, end_date))
+        top_selling_foods = month_sales_queryset.values('food__name').annotate(sales_count=Count('food')).order_by('-sales_count')[:4]
+
+        top_selling_foods_by_year_month = {}
+        top_selling_foods_by_year_month[tmonth] = list(top_selling_foods)
+        
+
+        # Top 4 best-selling foods for each year, month, and day
+        jalali_start_date = JalaliDate(tyear, tmonth, tday)
+        jalali_end_date = JalaliDate(tyear, tmonth, tday + 1)
+
+        start_date = jalali_start_date.to_gregorian()
+        end_date = jalali_end_date.to_gregorian() + timedelta(days=1)
+
+        day_sales_queryset = sales_queryset.filter(created__range=(start_date, end_date))
+        top_selling_foods = day_sales_queryset.values('food__name').annotate(sales_count=Count('food')).order_by('-sales_count')[:4]
+
+        top_selling_foods_by_year_month_day = {}
+        top_selling_foods_by_year_month_day[tday] = list(top_selling_foods)
+
+
+        report_data = {
+            'top_selling_foods_by_year': top_selling_foods_by_year,
+            'top_selling_foods_by_year_month': top_selling_foods_by_year_month,
+            'top_selling_foods_by_year_month_day': top_selling_foods_by_year_month_day,
+        }
+
+        return Response(report_data)
+#-----------------------------------------------------------

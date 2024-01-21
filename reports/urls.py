@@ -11,6 +11,8 @@ urlpatterns = [
     path('charts/year/', YearChartAPIView.as_view(), name='charts-year'),
     path('charts/month/', MonthChartAPIView.as_view(), name='charts-month'),
     path('charts/day/', DayChartAPIView.as_view(), name='charts-day'),
+    path('charts/food/', FoodSalesChartAPIView.as_view(), name='charts-food'),
+    
 
     path('payment/', PayMoneyAPIView.as_view(), name='pay'),
     path('verify/', VerifyAPIView.as_view(), name='verify'),

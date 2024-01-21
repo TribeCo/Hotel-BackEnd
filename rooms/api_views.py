@@ -32,6 +32,16 @@ from django.db.models import Q
 
 """
 #--------------------------------------------------------
+messages_for_front = {
+    'room_created' : 'اتاق اضافه شد.',
+    'room_reserved' : 'اتاق رزرو شد.',
+    'room_is_over' : 'موجودی اتاق تمام شده است.',
+    'RoomType_not_found.' : 'اتاق پیدا نشد.',
+    'image_updated' : 'عکس اپدیت شد.',
+    'room_updated' : 'اطلاعات اتاق اپدیت شد.',
+    'food_reservation_updated' : 'رزرو غذا اپدیت شد.',
+}
+#-----------------------------------------------------------
 class RoomTypeAllListAPIView(ListAPIView):
     """get a list of all types of hotel rooms.(domain.com/..../rooms/type/)"""
     queryset = RoomType.objects.all()
@@ -58,7 +68,7 @@ class RoomTypeCreateAPIView(APIView):
 
         if serializer.is_valid():
             serializer.save()
-            return Response({'message': 'room created.','data' : serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({'message':  messages_for_front['room_created'],'data' : serializer.data}, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -81,11 +91,11 @@ class RoomTypeImageUpdateView(APIView):
         try:
             user = RoomType.objects.get(pk=pk)
         except RoomType.DoesNotExist:
-            return Response({'message':'RoomType not found.'},status=status.HTTP_404_NOT_FOUND) 
+            return Response({'message': messages_for_front['RoomType_not_found']},status=status.HTTP_404_NOT_FOUND) 
         serializer = RoomTypeImageSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({'message':'image updated.'}, status=status.HTTP_200_OK)
+            return Response({'message':messages_for_front['image_updated']}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 #--------------------------------------------------------
 class RoomAllListAPIView(ListAPIView):
@@ -115,14 +125,14 @@ class RoomCreateAPIView(APIView):
             try:
                 room_type = RoomType.objects.get(id=serializer.validated_data['type'])
             except RoomType.DoesNotExist:
-                 return Response({'message': 'room type does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+                 return Response({'message': messages_for_front['RoomType_not_found']}, status=status.HTTP_400_BAD_REQUEST)
             
             room = Room(number = serializer.validated_data['number'],
                 type = room_type
             )
             room.save()
 
-            return Response({'message': 'room created.','data' : f"room id: {room.id}"}, status=status.HTTP_201_CREATED)
+            return Response({'message': messages_for_front['room_created'],'data' : f"room id: {room.id}"}, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 #--------------------------------------------------------
@@ -146,18 +156,18 @@ class RoomUpdateView(UpdateAPIView):
             try:
                 room_type = RoomType.objects.get(id=serializer.validated_data['type'])
             except RoomType.DoesNotExist:
-                return Response({'message': 'room type does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': messages_for_front['RoomType_not_found']}, status=status.HTTP_400_BAD_REQUEST)
             
             try:
                 room = Room.objects.get(id=room_id)
             except Room.DoesNotExist:
-                return Response({'message': 'room does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': messages_for_front['RoomType_not_found']}, status=status.HTTP_400_BAD_REQUEST)
 
             room.number = serializer.validated_data['number']
             room.type = room_type
             room.save()
 
-            return Response({'message': 'room updated.', 'data': f"room id: {room.id}"}, status=status.HTTP_200_OK)
+            return Response({'message': messages_for_front['room_updated'], 'data': f"room id: {room.id}"}, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 #--------------------------------------------------------
@@ -180,11 +190,11 @@ class ReservationRoomAPIView(APIView):
             try:
                 room_type = RoomType.objects.get(id=room_type_id)
             except RoomType.DoesNotExist:
-                return Response({'message': 'room type does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': messages_for_front['RoomType_not_found']}, status=status.HTTP_400_BAD_REQUEST)
             room_available = room_type.rooms.filter(has_Resev=False)
 
             if(room_available.count() == 0):
-                return Response({'message': 'room is not available.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': messages_for_front['room_is_over']}, status=status.HTTP_400_BAD_REQUEST)
 
             reservation_room = room_available[0]
 
@@ -198,7 +208,7 @@ class ReservationRoomAPIView(APIView):
             # reservation_room.has_Resev = True
             reservation_room.save()
             
-            return Response({'message': 'Room reserved successfully.'}, status=status.HTTP_201_CREATED)
+            return Response({'message': messages_for_front['room_reserved']}, status=status.HTTP_201_CREATED)
             
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

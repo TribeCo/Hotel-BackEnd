@@ -32,12 +32,19 @@ class FoodReservation(models.Model):
         ('d','ناهار'),
         ('n','شام'),
     )
+    place_choice = (
+        ('r','رستوران'),
+        ('a','اتاق'),
+    )
     food = models.ForeignKey(Food,on_delete=models.CASCADE,related_name="reservations")
     user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="food_reservations")
     created = models.DateField(auto_now_add=True)
     paid = models.BooleanField(default=False)
     been_paid = models.IntegerField(default=0)
     delivery = models.BooleanField(default=False)
+    place = models.CharField(max_length=1,choices=place_choice,default='r')
+
+
     
     meal = models.CharField(max_length=1,choices=meal_choice)
 

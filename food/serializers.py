@@ -22,7 +22,7 @@ class FoodReservationListSerializer(serializers.ModelSerializer):
     date = serializers.CharField(source='shamsi_date')
     class Meta:
         model = FoodReservation
-        fields = ('food','user','created','paid','been_paid','remain_paid','total_price','date','id','delivery')
+        fields = ('food','user','created','paid','been_paid','remain_paid','total_price','date','id','delivery','place')
 #-----------------------------------------------------------
 class DeliveryListSerializer(serializers.ModelSerializer):
     class Meta:

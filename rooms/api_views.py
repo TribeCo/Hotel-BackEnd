@@ -40,6 +40,7 @@ messages_for_front = {
     'image_updated' : 'عکس اپدیت شد.',
     'room_updated' : 'اطلاعات اتاق اپدیت شد.',
     'food_reservation_updated' : 'رزرو غذا اپدیت شد.',
+    'havent_room' : 'کاربر اتاقی رزرو ندارد.',
 }
 #-----------------------------------------------------------
 class RoomTypeAllListAPIView(ListAPIView):
@@ -67,7 +68,19 @@ class RoomTypeCreateAPIView(APIView):
         serializer = RoomTypeSerializer(data=request.data)
 
         if serializer.is_valid():
-            serializer.save()
+            room_type_obj = RoomType(
+                type = serializer.validated_data["type"],
+                bed_count = serializer.validated_data["bed_count"],
+                description = serializer.validated_data["description"],
+                price_one_night = serializer.validated_data["price_one_night"],
+            )
+            room_type_obj.save()
+            room = Room(number = room_type_obj.id,
+                        type = room_type_obj)
+
+            room_type_obj.code = room_type_obj.id
+            room_type_obj.save()
+            room.save()
             return Response({'message':  messages_for_front['room_created'],'data' : serializer.data}, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -89,13 +102,13 @@ class RoomTypeImageUpdateView(APIView):
     """update image of an object from the room type with pk.(domain.com/..../rooms/type/update/image/<int:pk>/)"""
     def put(self, request,pk):
         try:
-            user = RoomType.objects.get(pk=pk)
+            room_type = RoomType.objects.get(pk=pk)
         except RoomType.DoesNotExist:
             return Response({'message': messages_for_front['RoomType_not_found']},status=status.HTTP_404_NOT_FOUND) 
-        serializer = RoomTypeImageSerializer(user, data=request.data, partial=True)
+        serializer = RoomTypeImageSerializer(room_type, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({'message':messages_for_front['image_updated']}, status=status.HTTP_200_OK)
+            return Response({'message':messages_for_front['image_updated'],'data' : f"https://hotelt.liara.run/images/{room_type.image}"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 #--------------------------------------------------------
 class RoomAllListAPIView(ListAPIView):
@@ -218,6 +231,22 @@ class ReservationAllListAPIView(ListAPIView):
     queryset =  RoomReservation.objects.all()
     serializer_class =  ReservationListSerializer
 #--------------------------------------------------------
+class UserPaymentDashboardAPIView(APIView):
+    """Get the list of all the user's reservations in the hotel.(domain.com/..../rooms/reservation/user/)"""
+    permission_classes = [IsAuthenticated]
+    serializer_class = ReservationListSerializer
+    """
+        get payment for user
+    """
+    def get(self, request):
+        today = date.today()
+        payments_objects = request.user.reservations.all().filter(check_in__gte=today)
+        if(len(payments_objects) == 0):
+            return Response({'message': messages_for_front['havent_room'],'payments':[]}, status=status.HTTP_200_OK)
+        payments = ReservationListSerializer(payments_objects,many = True)
+
+        return Response({'payments': payments.data}, status=status.HTTP_200_OK)
+#--------------------------------------------------------
 class UserPaymentAPIView(APIView):
     """Get the list of all the user's reservations in the hotel.(domain.com/..../rooms/reservation/user/)"""
     permission_classes = [IsAuthenticated]
@@ -226,7 +255,10 @@ class UserPaymentAPIView(APIView):
         get payment for user
     """
     def get(self, request):
-        payments_objects = request.user.reservations.all()
+        today = date.today()
+        payments_objects = request.user.reservations.all().filter(paid=False)
+        if(len(payments_objects) == 0):
+            return Response({'message': messages_for_front['havent_room'],'payments':[]}, status=status.HTTP_200_OK)
         payments = ReservationListSerializer(payments_objects,many = True)
 
         return Response({'payments': payments.data}, status=status.HTTP_200_OK)

@@ -19,6 +19,7 @@ urlpatterns = [
 
     path('rooms/reservation/', ReservationRoomAPIView.as_view(), name='room-reservation'),
     path('rooms/reservation/all/', ReservationAllListAPIView.as_view(), name='all-reservation'),
+    path('rooms/reservation/user/dashboard/', UserPaymentDashboardAPIView.as_view(), name='user-dashboard-reservation'),
     path('rooms/reservation/user/', UserPaymentAPIView.as_view(), name='user-reservation'),
     path('rooms/reservation/days/<int:pk>/', OccupiedDaysNext30DaysView.as_view(), name='occupied-days'),
 ]

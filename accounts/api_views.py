@@ -315,7 +315,7 @@ class EmployeeListView(APIView):
         urls : domain.com/..../employees/
         
     """
-    permission_classes = [IsAuthenticated,IsHotelManager]
+    permission_classes = [IsAuthenticated,IsManager]
 
     def get(self, request):
         employees = User.objects.filter(Q(role='m') | Q(role='d') | Q(role='a')| Q(role='r'))

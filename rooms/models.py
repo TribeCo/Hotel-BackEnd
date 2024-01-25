@@ -4,6 +4,7 @@ from accounts.models import User
 from config.utils import jalali_create
 from django.db.models import Max
 from datetime import timedelta
+from datetime import date, timedelta
 #--------------------------------------------------------
 class RoomType(models.Model):
     """
@@ -79,4 +80,11 @@ class RoomReservation(models.Model):
         self.paid = True
         self.been_paid = self.price()
         self.save()
+    
+    def is_expired(self):
+        today = date.today()
+        end_date = self.check_in + timedelta(days=self.night_count)
+        if end_date < today:
+            return True
+        return False
 #--------------------------------------------------------

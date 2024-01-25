@@ -126,7 +126,7 @@ class RoomComment(Comment):
         return f"{self.user} - {self.room}"
 #--------------------------------------------------------
 class Payments(models.Model):
-    ref_id = models.CharField(max_length=100)
+    ref_id = models.CharField(max_length=100,null=True,blank=True)
     authority = models.CharField(max_length=100)
     user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="payments")
     amount = models.IntegerField()

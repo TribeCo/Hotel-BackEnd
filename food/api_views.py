@@ -7,6 +7,7 @@ from .serializers import *
 from rest_framework.permissions import IsAuthenticated
 from .models import Food
 from django.utils import timezone
+from datetime import date
 #-----------------------------------------------------------
 """
     Food reservation and food CRUD are coded in this app.
@@ -127,8 +128,19 @@ class UserFoodPaymentAPIView(APIView):
     permission_classes = [IsAuthenticated]
     """get food payment for user"""
     def get(self, request):
-        payments_objects = request.user.food_reservations.all()
+        payments_objects = request.user.food_reservations.all().filter(paid=False)
         payments = FoodReservationListSerializer(payments_objects,many = True)
+
+        return Response({'payments': payments.data}, status=status.HTTP_200_OK)
+#-----------------------------------------------------------
+from datetime import date, datetime
+class TodayUserPaymentAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    """get food payment for user"""
+    def get(self, request):
+        today = date.today()
+        food_reservations = FoodReservation.objects.filter(user=request.user, created=today)
+        payments = FoodReservationListSerializer(food_reservations,many = True)
 
         return Response({'payments': payments.data}, status=status.HTTP_200_OK)
 #-----------------------------------------------------------
@@ -142,7 +154,7 @@ class FoodImageUpdateView(APIView):
         serializer = FoodImageSerializer(food, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({'message':messages_for_front['image_updated']}, status=status.HTTP_200_OK)
+            return Response({'message':messages_for_front['image_updated'],'data' : f"https://hotelt.liara.run/images/{food.image}"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 #-----------------------------------------------------------
 class DeliveryChangeView(APIView):

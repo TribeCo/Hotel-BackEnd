@@ -9,7 +9,7 @@ messages_dict = {
     "not_connected" : ' اتصال به درگاه ناموفق بود.',
     "too_long" : 'زمان بیش حد سپری شده برای اتصال به درگاه.',
     "not_success_connect" : 'اتصال ناموفق.',
-    "success" : 'خرید با موفقیت انجام شد.',
+    "success" : 'پرداخت با موفقیت انجام شد.',
     "payed" : 'پرداخت انجام شده بوده است.',
     "not_success_connect" : 'پرداخت ناموفق بود.',
     "not_upload" : 'آپلود با مشکل مواجه شد.',
@@ -48,7 +48,8 @@ description = "هتل"  # Required
 email = 'fiveplusone.ir@gmail.com'  # Optional
 # mobile = '09123456789'  # Optional
 # Important: need to edit for realy server.
-CallbackURL = 'http://localhost:8000/api/verify/' #Change thiiiiiiiiiiiiiiiis to front
+# CallbackURL = 'http://hoteltransylvania.ir/payment/' #Change thiiiiiiiiiiiiiiiis to front
+CallbackURL = 'http://hoteltransylvania.ir/payment/'
 
 user_id = 1450
 user = None
@@ -83,15 +84,20 @@ class PayMoneyAPIView(APIView):
 
             
             response_dict = json.loads(response.text)
-            print(response_dict)
+            # print(response_dict)
             status = response_dict['Status']
             authority = response_dict['Authority']
 
 
             if(status == 100):
                 redirect_url = f"{ZP_API_STARTPAY}{authority}"
+                pay_obj = Payments(authority = authority,
+                    user = user,
+                    amount = amount
+                    )
+                pay_obj.save()
                 return Response({'redirect_url':redirect_url,})
-            print(status)
+            # print(status)
             return Response({'message':messages_dict['not_connected'],})
 
 
@@ -110,11 +116,18 @@ class VerifyAPIView(APIView):
         t_status = request.GET.get('Status')
         t_authority = request.GET['Authority']
 
-        global user_id
+        # global user_id
+        # try:
+        #     user = User.objects.get(id=user_id)
+        # except User.DoesNotExist:
+        #     return Response({'message':messages_dict['not_order'],})
+
         try:
-            user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
+            pay_obj = Payments.objects.get(authority=t_authority)
+        except Payments.DoesNotExist:
             return Response({'message':messages_dict['not_order'],})
+
+        user = pay_obj.user
 
         amount = user.total_price()
 
@@ -140,12 +153,15 @@ class VerifyAPIView(APIView):
 
             if status == 100:
                     user.all_payed()
-                    pay_obj = Payments(ref_id = RefID,
-                    authority = t_authority,
-                    user = user,
-                    amount = amount
-                    )
+                    pay_obj.ref_id = RefID
+                    # pay_obj = Payments(ref_id = RefID,
+                    # authority = t_authority,
+                    # user = user,
+                    # amount = amount
+                    # )
                     pay_obj.save()
+
+                    
                     user.save()
                                 
                     return Response({'message':messages_dict['success'],})
